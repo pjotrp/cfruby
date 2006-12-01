@@ -1,0 +1,65 @@
+
+Cfruby/cfenjin 0.9.6 by Pjotr Prins and David Powers Copyright GPL (c) 2004-2005
+	class Cfenjindocumentationcfenjinexamplescfsshdrb
+	include CfrubyRuntime
+		def initialize(cf,sourcepath,homepath,user)
+			
+			@cf=cf
+			@hostname=@cf.hostname
+			@sourcepath=sourcepath
+			@home=homepath
+			@user=user
+		
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplescfsshdrb
+	include CfrubyRuntime
+		def control0()
+			# Example script for configuring ssh using Cfruby
+			#
+			# This Cfruby script is used in production systems.
+			
+			package 'ssh','openssh'
+			
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplescfsshdrb
+	include CfrubyRuntime
+		def control1()
+			
+					if File.directory? '/etc/ssh'
+						@ssh_etc = '/etc/ssh'
+					else
+						@ssh_etc = '/etc'
+					end
+				 
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplescfsshdrb
+	include CfrubyRuntime
+		def files2()
+			
+			files @ssh_etc+'/ssh_config',{'owner'=>'root','mode'=>0644}
+			files @ssh_etc+'/sshd_config',{'owner'=>'root','mode'=>0600}
+			files @ssh_etc+'/ssh_host_dsa_key',{'owner'=>'root','mode'=>0400}
+			files @ssh_etc+'/ssh_host_rsa_key',{'owner'=>'root','mode'=>0400}
+					if File.exist? @ssh_etc+'/ssh_host_key'
+			files @ssh_etc+'/ssh_host_key',{'owner'=>'root','mode'=>0400}
+					end
+			
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplescfsshdrb
+	include CfrubyRuntime
+		def editfiles3()
+			
+					EditFile.edit @ssh_etc+'/sshd_config' do | f |
+						f.ReplaceAllAppend "UsePrivilegeSeparation [Nn].*","UsePrivilegeSeparation yes"
+						f.ReplaceAllAppend "PermitRootLogin\s+[yY].*","PermitRootLogin no"
+						f.ReplaceAllAppend "PermitEmptyPasswords[[:space:]]+[yY].*","PermitEmptyPasswords no"
+						f.ReplaceAllAppend "X11Forwarding[[:space:]]+[nN].*","X11Forwarding yes"
+						f.ReplaceAllAppend "^AllowGroups[[:space:]]+.*","AllowGroups #{$sshd_groups}" if $sshd_groups
+						f.ReplaceAllAppend "^AllowUsers[[:space:]]+.*","AllowUsers #{$sshd_users}" if $sshd_users
+					end
+		end
+	end

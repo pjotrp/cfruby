@@ -1,0 +1,96 @@
+
+Cfruby/cfenjin 0.9.6 by Pjotr Prins and David Powers Copyright GPL (c) 2004-2005
+	class Cfenjindocumentationcfenjinexamplessiterb
+	include CfrubyRuntime
+		def initialize(cf,sourcepath,homepath,user)
+			
+			@cf=cf
+			@hostname=@cf.hostname
+			@sourcepath=sourcepath
+			@home=homepath
+			@user=user
+		
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplessiterb
+	include CfrubyRuntime
+		def control0()
+			# Example of a site specific file. 
+			#
+			# Warning: DO NOT USE THIS - it will overwrite your settings.
+			#
+			
+			# Force dry run
+			
+			@cf.dry_run = true
+			@cf.cfp_logger.notify VERBOSE_MINOR,'Example of cfruby run (dry_run only)'
+			
+			# ---- Fake resolver settings
+			@cf.site['resolv_domain'] = 'yourdomain'
+			@cf.site['resolv_ns1'] = '10.0.0.2'
+			
+			# ---- Fake time server settings
+			@cf.site['timeserver'] = '10.0.0.2'
+			
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplessiterb
+	include CfrubyRuntime
+		def groups1()
+			
+			assign %w{  myworkstation hostname1 hostname2 }
+			assign %w{  myserver hostname3 }
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplescfresolvrb
+	include CfrubyRuntime
+		def initialize(cf,sourcepath,homepath,user)
+			
+			@cf=cf
+			@hostname=@cf.hostname
+			@sourcepath=sourcepath
+			@home=homepath
+			@user=user
+		
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplescfresolvrb
+	include CfrubyRuntime
+		def control0()
+			# Hard codes the resolver file if the machine is not in the dhcpclient
+			# class. Note the $resolv_ns1 value has to be set.
+			#
+			# This Cfruby script is used in production systems.
+			
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplescfresolvrb
+	include CfrubyRuntime
+		def control1()
+			
+			if not isa?('dhcpclient')
+				
+					raise "Name server not defined in variable $resolv_ns1!" if !$resolv_ns1
+			
+			end # ---- !dhcpclient::
+		end
+	end
+	class Cfenjindocumentationcfenjinexamplescfresolvrb
+	include CfrubyRuntime
+		def editfiles2()
+			
+			if not isa?('dhcpclient')
+			 
+					ef = EditFile.new "/etc/resolv.conf"
+					ef.AutoCreate
+					ef.EmptyEntireFilePlease
+					ef.Warning
+					ef.AppendIfNoSuchLine "domain #{$resolv_domain}"
+					ef.AppendIfNoSuchLine "search #{$resolv_domain}"
+					ef.AppendIfNoSuchLine "nameserver #{$resolv_ns1}"
+					ef.AppendIfNoSuchLine "nameserver #{$resolv_ns2}" if $resolv_ns2
+					ef.AppendIfNoSuchLine "nameserver #{$resolv_ns3}" if $resolv_ns3
+					ef.write
+			end # ---- !dhcpclient::
+		end
+	end

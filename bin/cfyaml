@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'rubygems'
+require_gem 'cfruby'
+require 'libcfruby/cfyaml'
+require 'libcfruby/cfrubyscript'
+
+
+def get_options()
+	options = Hash.new()
+	options['verbosity'] = 'info'
+	options['scripts'] = Array.new()
+	options['noop'] = false
+
+	opts = OptionParser.new() { |opts|
+		opts.on_tail("-v", "--verbosity VERBOSITY", "debug, info, warn, error") { |verbosity|
+			options['verbosity'] = verbosity
+		}
+
+		opts.on_tail("-h", "--help", "Print this message") {
+			print(opts)
+			exit()
+		}
+
+		opts.on("-l", "--log LOGFILE", "Location of the log file") { |filename|
+			options['log'] = filename
+		}
+		
+		opts.on("-n", "--no-op", "Cause all Cfruby library operations to say what they would do, but not actually do it") {
+		  options['noop'] = true
+		}
+		
+		opts.on("-d", "--debug", "Turn on additional debugging output for cfyaml itself") {
+		  options['debug'] = true
+		}
+		
+		opts.on("-s", "--scripts x,y,z", Array, "CfYAML scripts to run in order") { |list|
+			list.each() { |l|
+				options['scripts'] << l.strip()
+			}
+		}
+	}
+
+	opts.parse(ARGV)
+	
+	# pick up trailing arguments and add them to options['scripts']
+	trailing = false
+	skipnext = false
+	ARGV.each() { |arg|
+		arg.strip!()
+		
+		if(!trailing and arg =~ /^-/)
+			skipnext = true
+		elsif(!trailing and skipnext == true)
+			skipnext = false
+		else
+			trailing = true
+			options['scripts'] << arg
+		end
+	}
+
+	return(options)
+end
+
+
+options = get_options()
+
+if(options['log'])
+	set_cfruby_log(options['log'], options['verbosity'])
+else
+	set_cfruby_log($stdout, options['verbosity'])
+end
+
+if(options['noop'])
+  set_cfruby_noop()
+end
+
+# run each script in turn
+options['scripts'].each() { |script|
+	File.open(script, File::RDONLY) { |fp|
+		data = YAML.load(fp)
+		
+		if(options['debug'] == true)
+			puts("read in #{script}:")
+			puts(data.to_yaml)
+		end
+		
+		begin
+			CfYAML.process(data)
+		rescue
+			$stderr.print($!.to_s())
+			exit(1)
+		end
+	}
+}

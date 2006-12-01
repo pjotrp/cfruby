@@ -1,0 +1,7 @@
+require 'libcfruby/osmodules/freebsd.rb'
+require 'libcfruby/osmodules/openbsd.rb'
+require 'libcfruby/osmodules/linux-debian.rb'
+require 'libcfruby/osmodules/linux-generic.rb'
+require 'libcfruby/osmodules/linux-gentoo.rb'
+require 'libcfruby/osmodules/linux-suse.rb'
+require 'libcfruby/osmodules/osx.rb'

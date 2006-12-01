@@ -1,0 +1,10 @@
+#! /bin/sh
+#
+# Run this script to fix permissions (as darcs has no support for 
+# handling executable flags).
+
+if [ ! -d scripts ]; then echo "Run from base directory!" ; exit ; fi
+
+egrep -r -l '^\#!' . | grep -v _darcs | xargs chmod a+x
+
+

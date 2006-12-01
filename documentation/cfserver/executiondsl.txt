@@ -1,0 +1,128 @@
+## Introduction
+
+The domain specific language (DSL) for cfserver script execution is designed to allow a user to quickly highlight a set of characteristics from a cfclient property list and return true or false.  These can be chained together using standard boolean sets (and/or/not/()) to create complex statements.  This language should allow:
+
+* simple recursive selection of Hash-like structures
+* for simple wildcards in value selections
+* full regular expressions in value selections
+* fallback to full ruby
+* basic tests for common string and numeric values
+
+## Syntax
+
+The DSL is made up of selectors, tests, and boolean operators.
+
+### Selectors
+
+For example purposes, let's assume the following structure:
+
+	packages: 
+	  apt-shlibs: 
+	    name: apt-shlibs
+	    installed: true
+	    description: Advanced
+	    version: 0.5.4-51
+	  bzip2-shlibs: 
+	    name: bzip2-shlibs
+	    installed: true
+	    description: Shared
+	    version: 1.0.2-12
+	  fink-mirrors: 
+	    name: fink-mirrors
+	    installed: true
+	    description: Mirror
+	    version: 0.24.4.1-1
+
+which is a piece from an actual cfclient run.  All data is stored in the form of recursive hashes (name: value) pairs, with the final value being of any possible data type - although generally a simple string.
+
+Selectors allow a choice of one or more final values (leaf nodes, or names that do not have an associated hash).  The simplest form selects a single value (or sub-hash):
+
+	packages:apt-shlibs
+	packages:apt-shlibs:version
+	
+where the selector is of the form `name`:`name`:`...`.
+
+Simple enough.  Selectors also allow for the use of embedded simple wildcards (* or ?) as in:
+
+	packages:*
+	
+or
+
+	packages:apt-*
+	
+which returns every value that can be expanded (* expands to one or more characters, ? to any one character)
+
+Finally, full regular expressions can be used as a selector by surrounding the selector name with `//` as in:
+
+	packages:/mirrors/
+	
+or
+
+	packages:/^apt-.*lib/
+	
+which would match any package containing the word "mirrors" or any package starting with "apt-" followed at some point by lib (respectively).
+
+### Tests
+
+Once one or more items have been selected, they can be tested using any of the following.  NOTE - some operators only apply to single values while others can be applied to hashes:
+
+#### Hashes Only
+
+*has_key* - true if any of the selected hashes contains the given key
+
+*matches_key* - true if any of the selected hashes has a key that matches the given regular expression
+
+#### Values Only
+
+*contains* - true if any of the selected values contains the given string
+
+*equals* - true if any of the expanded values equals the given string
+
+*matches* - true if any of the expanded values matches the given regular expression
+
+*>/</=/>=/<=/!=* - true if any expanded value is >/</=/>=/<=/!= the number given (when converted into a number)
+
+#### Hashes or Values
+
+*exists* - true if the selector expanded to anything at all
+
+### Boolean Operators
+
+Selector test combinations can be connected together with the standard boolean operations (and/or/not/()) to form more complex conditions.
+
+
+## Actions
+
+Once a set of conditions is fully expanded and has evaluated to true, then one or more scripts can be set to run on the host.  The scripts are run sequentially in the order given.  If a script exits with an error condition then any following scripts (in this sequence) will not be run.
+
+
+## Implementation
+
+This DSL is designed to be accessed (primarily) through a simple web interface designed around common filtering dialogs (email) with one or more lines indicating a series of tests.  As such it has only a data representation in pure ruby that is designed to be easily parsed by a machine.
+
+Each selecting statement is held in a Statement object which is in turn held in a sequence object that holds a list of statements and sequences joined by operators.
+
+	class Sequence
+	
+		def initialize()
+			@statements = Array.new()
+		end
+	
+	
+		# Adds a statement (an Array containing a statement) or a
+		# sub-sequence to this sequence with the given operator and
+		# an optional not
+		def add(statement, operator, negate = false)
+			@statements << [operator, negate, statement]
+		end
+	
+	
+		# evaluates the entire sequence over the given data and
+		# returns true or false
+		def eval(data)
+			@statements.each() do |statement|
+				...
+			end
+		end
+	
+	end

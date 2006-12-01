@@ -1,0 +1,466 @@
+# Introduction #
+
+# Installing Cfruby #
+
+## Phase 1 - Installing Ruby ##
+
+Cfruby (for the most part) relies only on pure ruby 1.8.x or beyond. That means that if you can get ruby running on your system, then you can likely run Cfruby as well. Fortunately, getting ruby for most systems is fairly simple. 
+
+### FreeBSD ###
+
+There are two ways to get ruby running on FreeBSD without resorting to compiling it by hand. The easiest is to just type: 
+
+    pkg_add -r ruby18
+
+Which should fetch the pre-compiled package from one of the FreeBSD package repositories and install it (along with any of its prerequisites).
+
+While this is fine, the truly discerning will want the latest and greatest version of ruby FreeBSD has to offer - which means that we will be turning to the ports system. Getting an up-to-date ports tree installed on your FreeBSD system is beyond the scope of this document, but excellent instructions can be found at [freebsd.org](http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/ports-using.html "FreeBSD Handbook"). Once you have a new and shiny ports tree in place, installing ruby is a simple matter of:
+
+    cd /usr/ports/lang/ruby18 make install
+
+### OS X ###
+
+The lovely folks at apple have thoughtfully provided ruby 1.8.x already installed with OS X v10.4 (tiger) and above. That said, there are some minor issues with the default installed version of ruby, so installing from one of the two main package managers might be a good idea. You can either use [Fink](http://fink.sourceforge.net) or [DarwinPorts](http://darwinports.opendarwin.org) as your package manager of choice under OS X. Both of them have their points - I happen to prefer DarwinPorts packaging of ruby myself.
+
+Under Fink installation of ruby is as simple as: 
+
+    sudo fink install ruby
+
+Under DarwinPorts the command becomes: 
+
+    sudo port install ruby
+
+### Linux ###
+
+Linux comes in more styles than there are fish in the sea, but most of the most popular distributions rely on either the apt or rpm package managers. Unfortunately the specific packages needed vary from distribution to distribution.  Fortunately, cfruby requires only a basic ruby install (version 1.8 or later) which may already be on your system.  
+
+# The Different Flavors #
+
+## libcfruby - I Like Straight Ruby ##
+
+The core of cfruby's functionality lies in libcfruby, a collection of modules that collect a wide range of functionality designed to make system maintenance and setup easier. Using libcfruby directly in your scripts is as simple as adding:
+
+    require_gem cfruby
+
+to the top of your script once you have installed the gem.  This will give you direct access to all of the core modules in libcfruby, and you can make use of them in any script, in any fashion you like.  More on exactly what it can be used for in the later sections.
+
+## cfrubyscript - Syntactical Sugar With All Of The Power ##
+
+Libcfruby as a whole is great.  It is filled with powerful and interesting tools for doing almost anything with a system, but it is also big, unwieldy, and all carefully shuffled off into its own namespace.  That means that you have to write things like:
+
+	os = Cfruby::OS::OSFactory.new.get_os()
+    puts(os.name)
+
+just to get the name of your operating system.  Also, everything is an external method you have to call on your data - which tends to hide your data and clutter up your otherwise simple script.  Take, for instance, the following example of installing a set of packages for a hypothetical webserver.  First, using straight libcfruby:
+
+	os = Cfruby::OS::OSFactory.new.get_os()
+    pkg_manager = os.get_package_manager()
+
+    packages = ['apache', 'mod_php4', 'mod_ruby']
+    pkg_manager.install(packages)
+
+You may be thinking, "that's not too bad actually".  Four lines in basic ruby isn't much to ask to do package installation.  But if you had added:
+
+	require_gem 'cfruby'
+    require 'cfrubyscript'
+
+to the top of your script, you could have written that as:
+
+    ['apache', 'mod_php4', 'mod_ruby'].install()
+
+I know, it's snazzy.  Cfrubyscript is pretty simple voodoo actually. Requiring cfrubyscript in your script does the following for you automagically:
+
+* It creates a handful of useful global variables ($os, $pkg, $user, $proc, and $sched)
+* It pulls most of the major modules into the main namespace - so you can call FileEdit.set instead of Cfruby::FileEdit.set
+* It adds a number of helper methods to String and Array that do cfruby things (install programs, edit files, etc.)
+* It gives you a nice logger
+
+## cfyaml - Clean and Simple ##
+
+Having a pile of powerful methods to manipulate your server with is great, but they tend to distract from the center of attention - the data you are manipulating.  Besides, most of the time server maintenance involves the same set of tasks in the same order.  Install programs, edit configuration files, execute scripts, repeat.  cfyaml takes a few basic assumptions about the types of methods you are likely to call on your data and the order in which you are likely to call them, and uses those assumptions to let your turn data structures into fully functioning system maintenance scripts.  Instead of worrying about modules and loops you can concentrate on the data.  Take this example:
+
+	filename: /etc/ssh/sshd_config
+    user: root
+    group: wheel
+    mode: u=rw,o-rwx
+    set:
+    options:
+    whitespace: true
+    variables:
+      - [PermitRootLogin, without-password]
+      - [Protocol, 2]
+
+That's a very basic lock down of sshd, the whole thing - no method calls, no wasted space.  Above and beyond it's sparsity, it's immediately readable, even if you don't know a thing about programming languages.  Now, cfyaml can't do *everything*, but it can probably do 90% of everything, and it has some interesting glue helpers to get it the rest of the way.
+
+## all three at once (plus some) ##
+
+Each section after this is going to show you how to accomplish a particular system administration task using each of the three tools describe above.  When writing your own scripts you may choose to use one, two, or even all of these tools in conjunction.
+
+# Who Am I? - Getting Information About a Running System #
+
+## System Detection ##
+
+Cfruby provides access to a reasonable amount of information about the system it is running on.  This allows you to puts scripts together in logical ways based on the work that they are doing, regardless of the type of system they are meant to do it on.  For instance, if you have three mail servers, two of which are running FreeBSD and one of which is running Linux, you can still make one mailserver maintenance script that alters its behavior as necessary based on the OS it is being run under.
+
+### libcfruby ###
+
+Most of the important system information is contained in the OS interface provided by libcfruby.  Each major supported operating system provides its own version of the OS class, which you could instantiate directly.  However, libcfruby also provides an OSFactory class that attempts to do the work of detecting the system for you.  Using this, an appropriate OS object can be gotten with:
+
+	osfactory = Cfruby::OS::OSFactory.new()
+	os = osfactory.get_os()
+
+Once you have an OS object it can be easily queried for the OS information, as well as the hostname of the system (it also gives us access to package, process, and user managers):
+
+	puts(os['osname'])
+	puts(os['hostname'])
+
+The entire list of required fields can be found in the libcfruby documentation under OS.  Incidentally, most of the informational fields provided by OS can also be gotten at with dot notation, as in:
+
+	puts(os.name)
+
+### cfrubyscript ###
+
+Cfrubyscript just shortens the amount of setup you need to do by plunking down a pre-setup OS object into your script's global namespace called *$os*.  Use it as you would a normal OS object gotten from an OSFactory using libcfruby directly.
+
+### cfyaml ###
+
+cfyaml doesn't provide any direct or special access to host information at all.  In fact, you have to resort to using cfrubyscript or libcfruby from cfyaml to get anything at all, because cfyaml itself doesn't even provide direct access to variables or library calls.  Instead cfyaml gives you two directives that can make calls back into straight ruby, `:eval` and `:conditions`.
+
+When cfyaml processes a file, and it encounters a Hash with a `:conditions` entry it will evaluate the entry (or each part of the entry if `:conditions` is defined as an array) as a line of ruby code.  If the line evaluates to false, the rest of the data structure `:conditions` is attached to will never be examined or executed.  So, assuming that you had also required cfrubyscript in the script you are using to process your cfyaml, you could write:
+
+	\- conditions: '$os["osname"] == "freebsd"'
+      install: nano
+
+which would install nano if, and only if, the script were running on a FreeBSD system.
+
+# Package Management #
+
+## Getting a PackageManager ##
+
+### libcfruby ###
+
+The os interface discussed above provides the window to package managing goodness by providing the get_package_manager method, which returns an object conforming to the PackageManager interface. The PackageManager for your system provides methods (where possible) for adding, removing, and listing packages without dealing with the specifics of the system itself.  Most of the operations are reasonably intuitive.
+
+Getting the PackageManager:
+
+	osfactory = Cfruby::OS::OSFactory.new()
+	os = osfactory.get_os()
+	packagemgr = os.get_package_manager()
+
+Installing a package:
+
+    packagemgr.install('apache')
+
+Removing a package:
+
+    packagemgr.uninstall('apache')
+
+Listing packages (the lists returned are actually PackageInfo objects that have fields that are occasionally OS dependent - see the rDoc for more detail):
+
+	all = packagemgr.packages()
+	installed = packagemgr.installed_packages()
+
+### cfrubyscript ###
+
+ Cfrubyscript goes the extra mile for you, and starts you off with a pre-made PackageManager in the global variable \$pkg, as well as defining a number of helper methods for Arrays and Strings to avoid all that typing.  For instance:
+
+	'apache'.install()
+	['apache', 'mod_php', 'nano'].install()
+
+See the rDoc for cfrubyscript for a list of all the helper methods available.
+
+### cfyaml ###
+
+cfyaml provides the install data structure for... well, installing packages.  Beyond the attributes available to all cfyaml elements (conditions, etc), it provides only one settable parameter "install", and it looks something like this in practice
+
+	install: exim
+
+or
+
+	install: [apache, mod_php, nano]
+
+### What if my Package Manager Isn't Supported? ###
+
+Ah, horror of horrors, woe of woes.  You loaded up cfruby and found that your particular operating system doesn't have a supported package manager.  Don't despair, much.  The downside is that you will either have to wait for someone else to implement one for you, or you will have to create one of your own (and contribute it back to the community, right?).  Implementing one is as simple as creating a class based on the PackageManager interface defined in packagemanager.rb in the lib/libcfruby directory.  Several examples can be found in lib/libcfruby/osmodules directory - which is where your should go when it is done.
+
+
+# Configuration #
+
+The golden ticket of system maintenance is simple, repeatable configuration.  The point, after all, is to have your systems match some sort of consistent standard.  This makes it less likely for things to go oddly wrong, easier to find things when they do, and easier to repair them *everywhere*.
+
+UNIX is both a blessing and a curse when it comes to this sort of multi-system configuration.  On the plus side, most of the programs will compile and run on almost any POSIX system, and they usually have the pleasant tendency of using plain old text files to store their configurations.  That unfortunately, is where the fun ends as well.  The files are stored in different places, and they use any format man, monkey, or machine could dream up.  Additionally, being text, there isn't exactly a centralized way to get at them.
+
+Cfruby doesn't exactly dictate how to solve each of these problems, but it *gives* you a big toolbox that lets you solve each of these problems in a number of different ways.
+
+## Pulling In a Pre-Done Configuration File ##
+
+At the most basic level, having a pre-prepared configuration file stored on a server is often the easiest way to handle things.  The files are easy to get to, easy to edit, and remain consistent across all of your servers.  Cfruby even gives you some easy ways to get them and keep them up to date.
+
+### libcfruby ###
+
+FileUtils.copy and FileUtils.move can not only copy and move files around a local system, but they also speak http and rsync if you have the appropriate local tools installed (generally wget and rsync respectively).  Fortunately they are both easy to install on almost any system.  Failing that, a remotely mounted NFS or SMB share and local copy can do the job nicely.  Even a customized fetch command run using the Exec module can do in a pinch.
+
+### cfrubyscript ###
+
+Other than a slightly shorter syntax when calling copy and move, you don't get much mileage out of cfrubyscript for simple copying of configuration files.
+
+### cfyaml ###
+
+cfyaml on the other hand, has a little bit of magic buried in the filename block.  If the filename block has a template entry, and the filename does not exist, then it will be copied in from template, thusly:
+
+	filename: /usr/local/etc/lighttpd.conf
+	template: rsync://cfrubycfruby.notreallythere.com:/repo/lighttpd.conf
+	set:
+     - [ server.document-root, '"/usr/local/www/data/ismail"' ]
+    
+We'll get to that bit about set in a moment, relax.
+
+## Editing an Existing Configuration File ##
+
+Most configuration in POSIX systems is done through flat text files, which, as I have already noted, is a fantastic thing.  Many of these files are flexible enough that you can go a long long way with a single generic configuration file that you just copy around from machine to machine.  But sometimes individual changes need to be made, some machines are slightly different than others, some machines need more complex services, etc.  Traditionally this is where nitty gritty manual configuration steps to the plate.  We installed apache, so we need to add a line to rc.conf, and we need to edit the hostname, and so on.  So we make some edits, and we start the server... and then we find out what edits we forgot to make and we try again.  Sometimes a subtle error creeps in (we did everything right, but we forgot to add a line to rotate the log file) that catches us days, months, or sometimes years down the road.
+
+Wouldn't it be good to automate the editing as much as possible?  Obviously we can't automate *everything*, but we can automate a surprising amount using cfruby.  This tutorial won't get into every possible way to edit, trim, or mangle a file using libcfruby - there are an awful lot of them.  That said, the documentation for the FileEdit class should give you a decent rundown.
+
+First, a few basics.  Ignoring everything else, using libcfruby to edit your configuration files gives you a few things out of the box with no effort on your part at all.
+
+* All the edits are atomic.  That means that the file is never in an inconsistent state on disk, which means that your running programs are generally kept happy. 
+* Most of the higher level functions describe an end result, not how to get there.  You indicate that you want the variable hostname set to 'foo.bar.com' in your file, and libcfruby gets the job done.  It sets it once, it doesn't set it over and over.
+* It's all logged and backed up if you want it to be.  Don't like the last change?  Fine, libcfruby kept a backup for you.
+* It's smart about editing, and can make use of regex anchors and other neat things.  This makes edits easier to describe and more likely to work across a wide variety of systems and configurations.
+
+### Setting ###
+
+
+# libcfruby #
+
+The most common thing to do in a configuration file is to set a value, and, not coincidentally, libcfruby has an extremely high-level method called *set* to do just that.  Set handles lines like:
+
+	Protocol 2,1
+
+and
+
+	hostname="foo.bar.com"
+
+In fact, any line that can be seen as a unique key followed by some value can be set using set.  What's more, set is smart.  It understands that whitespace is generally not significant a the beginning and the end of a line, it can handle different separators, and it will set things once and only once in a file.  Interested?  The two examples above can be set using:
+
+	Cfruby::FileEdit.set('/etc/ssh/sshd_conf', 'Protocol', '2', `:whitespace` => true)
+
+and
+
+	Cfruby::FileEdit.set('/etc/rc.conf', 'hostname', '"foo.bar.com"')
+
+Set also can take a whole slew of options that dictate the delimiter (= is the default, and whitespace is special as seen above), and where to put the line if it isn't found.  In addition to set, FileEdit has a number of other methods at different levels, which serve similar purposes:
+
+* file_must_contain
+* file_must_not_contain
+* set_contents
+* comment
+* uncomment
+* replace
+
+### cfrubyscript ###
+
+Beyond moving FileEdit into the global namespace, saving your from typing Cfruby:: in front of every line, cfrubyscript also adds several of the FileEdit functions directly to String so that you can cut through all that useless syntax to write:
+
+	'/etc/ssh/sshd_conf'.set('Protocol', '2', `:whitespace` => true)
+
+### cfyaml ###
+
+All editing in cfyaml is done through the filename object, which actually can pack a large number of complex file edits into a very small space.  The key is that cfyaml will examine your filesystem object and perform the listed actions in a pre-defined order.  For example:
+
+	filename: /etc/make.conf
+	touch: true
+	user: root
+	group: wheel
+	set:
+  	  - [WITH_PGSQL, yes]
+	  - [WITH_EXISCAN_ACL, yes]
+	  - [WITHOUT_PAM, yes]
+	  - [WITHOUT_MAILSTORE, yes]
+	  - [WITHOUT_MBX, yes]
+	  - [WITHOUT_CDB, yes]
+	  - [WITHOUT_DSEARCH, yes]
+	  - [WITHOUT_NIS, yes]
+	  - [WITHOUT_PERL, yes]
+
+This same object could contain a number of other file commands, which would be recognized by their keys in the YAML file and would be executed in the following order:
+
+* comment: Comments the line or lines given
+* uncomment: Uncomments the line or lines given
+* set: Executes set passing name, value pairs as given
+* replace: Executes the replace command passing regex, str pairs as given
+* must_not_contain: Executes file_must_not_contain (must_not_contain and must_contain are executed atomically)
+* must_contain: Executes file_must_contain (must_not_contain and must_contain are executed atomically)
+
+### Adding, Removing, and Replacing Lines ###
+
+As mentioned above, setting variables to values isn't the only tool available to you through cfruby.  FileEdit also gives us the powerful file\_must\_contain and file\_must\_not\_contain commands, as well as the big hammer of set_contents (which calls both in a row atomically).  These commands are also (as noted above and in the rdocs) available through cfyaml and cfrubyscript.  Specifically file_must_contain allows you to specify a line, block, or set of lines that must be in the file.  Beyond this you can dictate the placement of the lines by absolute position (line 7) or by anchor (after the last line, or before the line matching a particular regular expression).  file_must_not_contain, on the other hand, does exactly the reverse, and is useful for stripping unnecessary lines from configuration files.
+
+While we are on the subject of matching and removing lines, one important option bears mentioning as special, `:fuzzymatch`.  Most of the functions in the FileEdit module take a `:fuzzymatch` option (it can be true or false), and in all cases it defaults to true.  It's meaning is simple - the strings you pass in too be added, removed, set, and so on, will ignore all whitespace when determining if there is a match to be made.  If you need to be specific about whitespace you can pass in `:fuzzymatch` => false, or in many cases, `:regex` => /your regex here/ to leverage all of the power of Ruby's full regular expression library.
+
+
+# Securing Things #
+
+Getting everything configured just the way you like it is, of course, only half of the system administration game.  Once that is done, there is still the task of locking everything down tight.  Permissions need to be set, extraneous files deleted, tripwires and snares must be set.
+
+Cfruby gives us a bunch of tools to do this sort of thing as well, most of them based on tried and true command line tools that old-school UNIX people know and love.  That doesn't mean that doing it in Cfruby is no different than writing a shell script though.  No, no - this is all of the power of the command line wrapped in a consistent interface inside of a powerful framework that gives you a whole host of other tools that the command line alone just can't touch.
+
+## Permissions and Ownership ##
+
+First things first.  The solid base of any good security system is locking the doors and giving the keys to the right people.  In a system sense, that means setting permissions correctly.  For example, most systems can be accessed via ssh, which has a set of configuration files that really should only ever be touched by root.  But how do we make sure that they are that way, and that they stay that way.
+
+	Cfruby::FileOps.chmod('/etc/ssh', 'u=rw,g=r,o-rwx', `:recursive` => true)
+	Cfruby::FileOps.chown('/etc/ssh', 'root', 'wheel', `:recursive` => true)
+
+Done.  That's it.  We put that into our regularly running Cfruby script file and it makes sure that our file permissions stay just the way we want them.  Actually, we can even do it in a single line:
+
+	Cfruby::FileOps.chown_mod('/etc/ssh', 'root', 'wheel', 'u=rw,g=r,o-rwx', `:recursive` => true)
+
+Or, if you prefer, using cfrubyscript's extensions instead:
+
+	'/etc/ssh'.chown_mod('root', 'wheel', 'u=rw,g=r,o-rwx', `:recursive` => true)
+
+And, of course, using a cfyaml structure:
+
+	filename: /etc/ssh
+	options:
+	recursive: true
+	user: root
+	group: wheel
+	mode: u=rw,g=r,o-rwx
+
+## Find and Destroy ##
+
+The same principles hold when searching through your filesystem for things that oughtn't be there.  Core dump files, extraneous files left over from installs, or just programs that your particular server has no need for can all be disabled or dismissed to /dev/null by Cfruby.  Cfrubyscript doesn't help out all that much with this task, so I present you only basic Cfruby and cfyaml (cfrubyscript is exactly the same minus the preface Cfruby::).
+
+In Cfruby deletions can be done as follows:
+
+	Cfruby::FileOps.delete('/', `:glob` => *.core, `:recursive` => true)
+	Cfruby::FileOps.delete('/usr/bin/badprogram')
+
+If you didn't want to delete the offending files, just render them harmless, you can simply call Cfruby::FileOps.disable in the same fashion as delete (or its alias unlink)
+
+cfyaml provides the delete and disable keywords which both take an optional options: section:
+
+	delete: /
+	options:
+	  glob: *.core
+	  recursive: true
+        
+and
+
+	delete: /usr/bin/badprogram
+
+## Checksums ##
+
+An important part of protecting and configuring a system is knowing what was there the last time you took a look at things.  Most commonly password files are kept in a checksum database to prevent malicious interlopers from adding accounts without someone finding out, but many kinds of files can benefit from a simple checksum check every once in a while.  Cfruby, predictably, provides a mechanism for doing just that in the form of the Checksum module, which provides mechanisms for building and maintaining checksum databases, as well as general checksum methods that can be called on for more generic purposes.
+
+As with deletion, cfrubyscript doesn't provide any sort of shortcut for this kind of activity beyond its normal shortening of the namespace.  Additionally, cfyaml doesn't (as of this writing) have an interface to the Checksum module either.  Fortunately, the straight ruby code isn't too arcane (although it is a touch verbose).  The first step is to initialize a database where we wills tore our checksums for future reference:
+
+	checksum_database = Cfruby::Checksum::Checksum.new("/my/checksum/database")
+    
+Then we can add some files using check.  Check uses the FileFind.find command under the hood, so files can be added en-mass with some ease:
+
+	checksum_database.check("/etc/passwd")
+	checksum_database.check("/usr/local/bin/*", :recursive => true, :files_only => true)
+    
+As you might have guessed, check serves a double purpose.  If the file is not already in the database, then it is silently added.  If it is already in the database, then it is checked against the database and an Exception is thrown if a discrepancy is found.  Those who prefer to check for a true or false return can call check?() instead to avoid having to catch Exceptions.  Additionally, if you have a database and you simply want to check the entire thing, you can call check_all (or, alternately check_all?()).  So that you can rest easy at night, checksum is quite thorough in its checks.  Not only does it check the MD5 and SHA1 checksum of the file, but it also checks the permissions, ownership and modification times to ensure that they haven't been tampered with.
+
+# Users #
+
+Users are like packages, at least insofar as libcfruby is concerned.  The OS module is responsible for getting and providing an appropriate UserManager object for your system like so:
+
+	osfactory = Cfruby::OS::OSFactory.new()
+	os = osfactory.get_os()
+	usermgr = os.get_user_manager()
+
+cfrubyscript provides a UserManager already setup for you in the form on the global variable $user.  cfyaml (at the moment) doesn't provide any special help for managing users.
+
+## Adding ##
+
+Once you have a UserManager object, adding a user is a single line of code:
+
+	$user.add_user("newusername")
+    
+Additionally, a password and/or uid can be given:
+
+	$user.add_user("newusername", "newpassword", 1000)
+    
+Finally, (depending on the level of control provided by the OS), an entire UserInfo object can be passed in, which can set the username, uid, gid, home directory, and so on (password must still be given if desired):
+
+	newuser = Cfruby::Users::UserInfo.new()
+	newuser.username = "newusername"
+	newuser.uid = 1000
+	newuser.gid = 1000
+	newuser.homedir = "/var/log/wackyhomedir"
+	$user.add_user(newuser, "newpassword")
+
+## Listing ##
+
+Listing of users (and, incidentally groups) is handled by calling `users()` or `groups()` on the usermanager object.  This returns a UserList or GroupList object (behaves as a Hash) which has a key for every user or group name, and a UserInfo/GroupInfo object as the value for that key.
+
+## Deleting ##
+
+`delete_user()` and `delete_group()` will remove the given user or group (either the appropriate Info object, or a username/groupname will do).
+
+
+# Processes #
+
+Process management is essential to system management.  Something as simple as whether a given process is running can be an important factor when running a backup or maintenance script.  Towards this end Cfruby provides a loose Process management module.  It isn't everything under the sun that can be done to or with a process, but it does give you the essentials in a quick and simple syntax.
+
+## Listing ##
+
+Cfruby process management follows the same paradigm as Package and User management.  The OS module provides a ProcessManager, which in turn can list processes, kill them, and provide information about them.  In pure libcfruby, getting a process manager is identical to getting a UserManager or a PackageManager:
+
+	osfactory = Cfruby::OS::OSFactory.new()
+	os = osfactory.get_os()
+	processmgr = os.get_process_manager()
+
+cfrubyscript sets up the $proc global variable for you, which should contain a ProcessManager for your system.  cfyaml doesn't provide any direct mechanism beyond these.
+
+Once you have a ProcessManager, getting a listing of the running processes is as simple as calling `processes()` on it.  This will return a ProcessList object (it behaves like a Hash), containing key, value pairs where the key is the unique id of the process and the value is a ProcessInfo object.  The exact qualities of the ProcessInfo object are system dependent, but in will contain as many of the following fields as possible (listed in order of implementation importance):
+
+* `pid`: unique process id 
+* `program`: the name or command line of the program
+* `username`: the username of the user running the program
+* `flags`: process flags (zombie, jailed, etc)
+* `starttime`: when the program was started
+* `runtime`: how long the program has been running (cpu time)
+* `cpu (%)`: percentage of cpu being used
+* `mem (%)`: percentage of memory being used
+
+Additionally, the ProcessManager provides a shortcut for getting at the process list by providing a `has_process(regex)` method, as well as a hash and pure method alias for accomplishing the same thing.  With these methods you can quickly ask if a given process is running (all the lines below accomplish the same thing):
+
+	sshdproc = processmgr.has_process?(/sshd/)
+	sshdproc = processmgr['sshd']
+	sshdproc = processmgr.sshd
+    
+The same thing can be accomplished in cfrubyscript without setup by using the $proc global in place of processmgr.
+
+## Destroying ##
+
+The ProcessManager object can attempt to stop a running process via the kill method, which takes a ProcessInfo object returned by a key lookup on `processes()` or a direct call to `has_process()`.  The exact method used to stop the process is OS dependent, but generally involves a halt request, followed by a short wait, followed by a more stringent kill request if the process hasn't halted in that period.  As an example, to kill sshd:
+
+	$proc.kill($proc.sshd)
+
+## Starting ##
+
+Starting a new process using libcfruby is handled through the Exec module, which has two main methods for invoking a process.  The first is `Exec.exec()` which takes the command to run and a user, and returns an array of outputs (standard output, and error output if it is available):
+
+	Cfruby::Exec.exec("mycommand")
+	Cfruby::Exec.exec("mycommand", "myuser")
+    
+cfrubyscript provides String and Array helper methods to make it a little less verbose:
+
+	'mycommand'.exec()
+	['myfirstcommand', 'mysecondcommand', 'mythirdcommand'].exec()
+    
+cfyaml provides the execute keyword, which can also take a single command or array of commands:
+
+	execute: mycommand
+	execute:
+	  - myfirstcommand
+	  - mysecondcommand
+	  - mythirdcommand
+      
+In addition, libcfruby and cfyaml can be convinced to use a shell by passing in an option (in the case of cfyaml) or by calling shellexec (for libcfruby).

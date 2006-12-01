@@ -1,0 +1,70 @@
+
+- Document Cfruby
+  - print shellcommands
+  - fix cfruby removes root dir
+  - fix cfruby copy permissions
+  . Add onchanged 
+  . print shellcommands ``
+  . stop services like cupsys, portmap, squid, inetd, nfs-kernel-server 
+  . Debian support for update-rc.d -f exim4 remove 
+	. upgrade some packages automatically (ssh, bind, postfix, clamav, spama)
+
+== Pjotr's Section (regarding the Cfruby parser):
+
+Finalize before 1.0:
+
+- Handle --strict consistently
+
+	The --strict option has cfenjin fail when a file can not be copied,
+	a link can not be created etc.
+	
+- Document all methods
+
+	Full rdoc
+
+- Generate all supported attributes
+
+Notes:
+
+- allow for dash in user/group name (improve logic)
+
+- test cfruby copy standard uid=0?
+  mkdir, copy should take user=root?
+
+- Log cfenjin run to syslog
+
+---------------------------------------------------------------------
+
+Old TODO List:
+
+Cfruby Parser:
+
+x unit tests for exec escaping
+x Build source code tree
+x eval code snippet
+x Catch exceptions of 'eval script' in cfp_execute.rb
+x Expand script into full Ruby class
+x file: action
+x link: action
+x Handle classes (add item to class)
+x Handle class rules (rule:: syntax)
+x dir: action
+x editfiles: action
+x shell: action
+x Implement package rules
+x only copy when file changed
+- Support non-sequential action sequences
+- speedup copy on file change by checking size and ctime first
+
+  Cfruby first edition covered at this point!
+
+x Localise $ variables with @cf.site Hash
+x Encapsulate @cf class passed to scripts
+x Change global classlist in Cfruby to cfp_stat member
+x Handle syntax errors in scripts with clear messages
+x Provide simple execute call through library method
+- Role support
+- Give Cfengine coverage for all commands
+x Write unit test for single parsed scripts (like cfsshd.rb)
+- Refactor visible methods in cfrubyruntime.rb
++ Merge cfrubylib's editfile implementation

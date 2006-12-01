@@ -1,0 +1,25 @@
+<%= start_form_tag({:action=>'save'}, :multipart => true) %>
+
+	<%= render :inline => RCS::TypeLocation.rhtml_form() %>
+	<br/>
+	<table>
+		<tr>
+			<td>
+				Changelog:
+			</td>
+			<td>
+				<%= text_field 'file', 'changelog' %>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Upload File:
+			</td>
+			<td>
+				<%= file_field 'file', 'file_upload' %>
+			</td>
+		</tr>
+	</table>
+	 <br/>
+	<%= submit_tag "Upload" %>
+<%= end_form_tag %>

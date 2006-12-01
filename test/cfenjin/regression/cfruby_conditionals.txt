@@ -1,0 +1,15 @@
+# This list shows conversions from Cfengine type double colon syntax to 
+# Ruby 'if statements'. The following are supported:
+
+httpd::                            if isa?('httpd')
+!httpd::                           if not isa?('httpd')
+(!httpd)::                         if ( not isa?('httpd') )
+httpd.squirrelmail::               if isa?('httpd') and isa?('squirrelmail')
+httpd.squirrelmail.server1::       if isa?('httpd') and isa?('squirrelmail') and isa?('server1')
+httpd|squirrelmail::               if isa?('httpd') or isa?('squirrelmail')
+httpd|squirrelmail|server1::       if isa?('httpd') or isa?('squirrelmail') or isa?('server1')
+httpd|!dns::                       if isa?('httpd') or not isa?('dns')
+httpd.!dns::                       if isa?('httpd') and not isa?('dns')
+httpd.(squirrelmail.!server1)::    if isa?('httpd') and ( isa?('squirrelmail') and not isa?('server1') )
+httpd|(!squirrelmail.!server1)::   if isa?('httpd') or ( not isa?('squirrelmail') and not isa?('server1') )
+httpd.(squirrelmail|server1)::     if isa?('httpd') and ( isa?('squirrelmail') or isa?('server1') )

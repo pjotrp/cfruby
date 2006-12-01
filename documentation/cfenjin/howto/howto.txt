@@ -1,0 +1,207 @@
+== Introduction ==
+
+Cfruby's cfenjin has similarities to \Cfengine, but also
+differences. If you are used to Cfengine it should take little to get
+used to this tool. This document should help you getting started.
+
+If you have never used \Cfengine\ it may pay to read that
+documentation first to understand the general idea of automated
+configuration.
+
+There are a number of other areas of documentation you can use in
+addition to this howto (and Wiki).  Primarily there are the example
+files in the cfenjin/documentation/examples directory. Most of the
+features of \cfenjin\ are used and shown in these examples. Another
+area of documentation are the unit tests in the cfejin/test
+directory. Finally the source code contains documentation which can be
+viewed with \rdoc. Note that \cfenjin\ and \libcfruby\ use similar
+strategies for documentation.
+
+== Overview ==
+
+Cfruby's cfenjin is based on the \libcfruby\ library - but with a GNU
+Cfengine style syntax. This means you get the power of Cfruby's
+libraries (also used by other \ruby\ projects) but with an easier
+interface that (1) appeals to system administrators who are not
+necessarily computer programmers, (2) encourages readability and
+therefore maintainability, (3) encourages best practices in system
+administration while retaining the power of \libcfruby\ itself.
+
+== Obvious Differences with GNU Cfengine ==
+
+=== \cfenjin\ is not complete ===
+
+\cfenjin\ does not cover the full functionality of \Cfengine\ - and
+some of it will probably never be duplicated. That is to say that
+100\% of the functionality we require for production systems is
+actually covered. I.e. missing functionality may not be that
+important. In addition it is easy to add functionality to \cfenjin\
+and we are happy to add it if you need it.
+
+=== Command line instead of imports ===
+
+One big difference is \cfruby\ passes scripts through the command line
+instead of using 'import' statements, starting with a 'site'
+file. This allows you to include a full directory:
+
+  \command\ site.rb config/*.rb
+
+without having to write import statements. Furthermore it allows you
+to run one script at a time:
+
+  \command\ site.rb config/cfssh.rb
+
+for testing. This implies, for best practices, you should have all global site
+names in site.rb (e.g. sysadmin names, groups) and have the generic
+configuration related to a package in the package configuration file. With this
+strategy you can allways run a configuration of one package at a time. We have
+successfully migrated a production server with multiple admins involved. One
+was working on mail, the other on apache etc. And each of us could run
+\cfenjin\ individually without disrupting the work of others.
+
+=== Mixing in Ruby Syntax ===
+
+\cfenjin\ allows the mixing of straight \ruby\ code in 'control'
+blocks - and in some other cases.
+
+\cfenjin\ is smart enough to figure out when a passed parameter is
+a path, or a \ruby\ syntax combination. For example in the following copy 
+command
+
+  copy:
+
+    @sourcepath+'/masterfiles/integrit.conf' dest=/etc/integrit/integrit.conf
+
+the first section is a \ruby\ concatenation and the second one is a
+file path.  Both syntaxes can be mixed. Meanwhile this will not work (note
+the missing single quotes):
+
+    @sourcepath+/masterfiles/integrit.conf
+
+as the section includes a variable and \cfenjin's parser will
+basically pass the section directly to the \ruby\ interpeter.
+
+=== Variable names ===
+
+Instead of the dollar braces notation for variables like
+
+  $(gatewayip)
+
+we use dollar notation for variables with global scope (see below) and 
+the 'at' notation for variables that have local script scope. For example:
+
+		$siteparameter
+		@hostname
+
+\cfenjin\ does not use global \ruby\ variables itself.
+
+=== Scope of variables ===
+
+Normally, within a script you use variables with an 'at' prefix - which
+denotes class scope. The variable is only visible within the script(!)
+
+@@Example
+
+Next you have global variables which are denoted with a dollar
+prefix. These look similar to \ruby\ globals - but they are not. They
+are only global to the \cfenjin\ environment (internally the variables
+are stored in a variable named @cfp_site).
+
+BTW you can also use local Ruby variables (without a prefix) which are
+only visible in a block scope.
+
+@@Example
+
+=== Predefined class variables ===
+
+@@Parse
+
+=== Action sequences ===
+
+\cfenjin\ supports multiple ways of executing sequences. The default
+is to run sequentially through script files passed through the command
+line. The alternative way is to run horizontally through action
+commands using the action sequence specifier (\cfengine\ style). We
+find the latter to be less intinuitive - and therefore decided not to
+make it the default.
+
+== More power ==
+
+=== The 'package' command
+
+A script can belong to a package. With the 'package' command the 
+script will only run when a package is installed:
+
+  package 'apache'
+
+	copy:
+
+    @sourcepath+'/'+@hostname+'_httpd.conf' dest=/etc/opt/apache/httpd.conf
+
+will only copy when the package is installed on the system. This saves
+you creating a separate class variable and checking for it (i.e. less
+room for error).
+
+You can also force installation of a package with the 'needpackage'
+command.
+
+=== Sophisticated Logger ===
+
+The logger can be steered through the commmand line. There are two
+types of switches: '-v' verbosity and '--trace' for debugging purposes.
+Each has 4 levels of operation - default and levels 1-3. Verbosity
+will show you several levels of information.
+
+Default shows nothing. Level 1 shows actions. 
+
+  cfruby info [1] rmdir /tmp/test/playground/tmp - done
+
+Level 2 gives more essential information like:
+
+  cfruby info [2] Can not chmod on non-existing file /tmp/cftest1.txt
+
+Level 3 gives all verbosity:
+
+  cfruby info [3] deleting files matching "" from "/tmp/cftest1.txt" -
+  aborted - /tmp/cftest1.txt does not exist
+
+Similarly with --trace you get four levels for debugging. Trace level
+1 shows environment settings, trace level 2 shows the execution
+sequence etc. and trace level 3 shows the compiled code. The latter is
+interesting if you want to verify the compilation from \cfenjin\ to
+\ruby\ code (which is fed to the \ruby\ interpreter). For example
+
+        # Same command Cfruby style
+        sshd = ( any )
+        
+        # Initiate a class level variable (that is local to this file)
+        sshd.any::
+
+                @masterfiles = @sourcepath+'/masterfiles'
+                @playground = '/tmp/test/playground'
+                @testln = @playground+'/testlink'
+                @testln2 = @playground+'/testlink2'
+                @tmpdir = @playground+'/tmp'
+
+compiles to
+
+     def control2()
+
+                        assign %w{  sshd any }
+                                
+                        # Initiate a class level variable (that is local to this file)
+                        if isa?('sshd') and isa?('any')
+                        
+                                        @masterfiles = @sourcepath+'/masterfiles
+'
+                                        @playground = '/tmp/test/playground'
+                                        @testln = @playground+'/testlink'
+                                        @testln2 = @playground+'/testlink2'
+                                        @tmpdir = @playground+'/tmp'
+                                
+                        end # ---- sshd.any::
+          end
+
+this code is enlightning as it shows what \cfenjin\ actually does.
+
+=== \cfenjin\ can be run from your \ruby\ program ===

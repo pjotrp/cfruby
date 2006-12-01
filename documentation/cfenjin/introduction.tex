@@ -1,0 +1,296 @@
+
+\subsection{Introducing Cfruby, Cfyaml and libcfruby}
+
+\emph{Powerful next generation tools for managing large scale heterogeneous
+computing environments, by David Powers and Pjotr Prins}
+
+\setcounter{section}{1}
+
+\subsubsection{Overview}
+
+The \cfruby\ project is an open source software initiative with
+the dual purpose of (1) providing a solid library for system
+administration and (2) tools for emulating and superseding the workings of
+GNU \cfengine.
+
+Large scale networked computing environments need appropriate tools
+for managing system and computational services. Cfruby is a tool-set
+that allows full automation, transactions, granular locking, versioned
+backups, extensive and configurable logging, a state machine with
+\cfengine\ style classes and scripting.
+
+The project has two types of users. The first type is the system
+administrator who wants to replace \cfengine\ with something more
+flexible and advanced. The second type is the Ruby developer, who
+wants to use powerful system administration features from his
+software. Since both worlds are served it means a broader user base
+which adds to the robustness and reliability of the libraries. 
+
+Here some concepts are introduced so you can get an appreciation
+for what can be done.
+
+
+\subsubsection{\cfenjin, a scripting language and state engine}
+
+\cfenjin\ is a parser and part of the \cfruby\ tool-set. It is made to
+look and behave like \cfengine, the GNU configuration engine, which was
+conceived in 1994 by Mark Burgess\cite{Cfengine} and has a simple
+programming language that can be mastered by any qualified system
+administrator. 
+
+\vspace{0.2in}
+
+\vbox{
+\cfengine\ was superior to other tools available at the time because it allowed a level
+of automating system administration while pursuing:
+
+\begin{itemize}
+  \item Readability
+  \item Documentation
+  \item Prevention of duplication
+  \item Abstraction
+\end{itemize}
+}
+
+\vbox{
+\cfenjin\ aims to be a better \cfengine. Like \cfengine\ it
+
+\begin{itemize}
+  \item is a \emph{simple} language
+  \item has a class based decision structure, which documents policies
+  \item allows automation and abstraction
+\end{itemize}
+}
+
+But in addition it
+
+\begin{itemize}
+  \item allows embedded \ruby
+  \item can be relatively easily extended
+  \item has extensive and configurable logging support
+\end{itemize}
+
+Instead of opting for the original \cfengine\ code base we decided to
+use the \ruby\ language as a natural parser.
+
+Ruby is a fully object oriented scripting language\cite{Ruby} with a
+rapidly growing support base. \ruby\ lends itself very well to rapid
+programming and usually results in terse but readable
+code\cite{Prins:Ruby2002}. It's affiliation to Perl is close enough for most
+Perl programmers to quickly pick up Ruby. Furthermore \ruby\ is
+nowadays on most installed \unix\ systems and runs on \mswindows\ as well.
+
+By using \ruby\ as a base language we get a very powerful scripting
+language for free.  Besides being well tested, cross-platform and secure, it has 
+a number of nice features out of the box (support for Perl-like regular 
+expressions, arrays, hashes, a great syntax checker, libraries for XML parsing, FTP and
+LDAP support, YAML etc. thrown in) that have been listed
+on \cfengine's wish list for a long time.
+
+Meanwhile \cfenjin\ users do \emph{not} need to learn \ruby\ as
+\cfenjin\ is a self-contained language implemented as a pre-parser (the
+output is pure \ruby\ code).
+
+
+\vbox{
+\subsubsection*{Example 1: Classes \& configuration}
+
+\cfenjin\ has classes and logical execution.
+
+\scriptsize
+\begin{verbatim}
+
+  servers = ( screamer flightless )
+  sshd    = ( servers )
+
+sshd::
+
+  $sshd_groups = 'sshlogin'
+
+\end{verbatim}
+\normalsize
+
+Here we tell \cfenjin\ that the servers are running sshd. If sshd is
+defined \$sshd\_groups gets set\footnote{Ruby aficionados should note
+  that \cfenjin\ handles variable scope in a way that localizes global
+  names to the local instance and class names to the package}.
+}
+
+Next we can use logic like
+
+\scriptsize
+\begin{verbatim}
+package 'ssh','openssh'
+
+control:
+
+    if File.directory? '/etc/ssh'
+      @ssh_etc = '/etc/ssh'
+    else
+      @ssh_etc = '/etc'
+    end
+   
+files:
+
+    @ssh_etc+'/ssh_config' o=root m=0644
+    @ssh_etc+'/sshd_config' o=root m=0600
+    @ssh_etc+'/ssh_host_dsa_key' o=root m=0400
+    @ssh_etc+'/ssh_host_rsa_key' o=root m=0400
+    if File.exist? @ssh_etc+'/ssh_host_key'
+      @ssh_etc+'/ssh_host_key' o=root m=0400
+    end
+
+editfiles:
+
+    EditFile.edit @ssh_etc+'/sshd_config' do | f |
+      f.ReplaceAllAppend "UsePrivilegeSeparation [Nn].*",
+                         "UsePrivilegeSeparation yes"
+      f.ReplaceAllAppend "PermitRootLogin\s+[yY].*",
+                         "PermitRootLogin no"
+      f.ReplaceAllAppend "PermitEmptyPasswords[[:space:]]+[yY].*",
+                         "PermitEmptyPasswords no"
+      f.ReplaceAllAppend "^AllowGroups[[:space:]]+.*",
+                         "AllowGroups #{$sshd_groups}" if $sshd_groups
+      f.ReplaceAllAppend "^AllowUsers[[:space:]]+.*",
+                         "AllowUsers #{$sshd_users}" if $sshd_users
+    end
+
+\end{verbatim}
+\normalsize
+
+where we test where the configuration files are (note we are using
+plain \ruby\ in the control block). In the files block we check and
+set permissions and in the 'editfiles' block we edit the configuration
+file.
+
+Note that editfiles allows for GNU type regular expressions, as well
+as \ruby\ and Perl type. Also the 'editfiles' block allows for 'if'
+blocks and other \ruby\ language syntax.
+
+\subsubsection*{Example 2: Package}
+
+\cfenjin\ understands the package system. By using the 'package' command
+in a script it will skip configuration of a non-installed package. E.g.
+
+\begin{verbatim}
+  package 'sudo'
+
+  ... do 'sudo' stuff when package 'sudo' installed ...
+\end{verbatim}
+
+this is why in Example 1 we do not need to surround every statement
+with an 'sshd::' clause(!)
+
+\subsubsection*{Example 3: Tidy}
+
+\cfenjin\ has powerful tidying. The pattern search allows for full
+regular expressions. For example, to tidy all files older than 30 days
+matching:
+
+\begin{verbatim}
+
+  tidy:
+
+    /var/log/ pattern='mail\.\d+\.gz' age=30
+\end{verbatim}
+
+removes /var/log/mail.3.gz when older than 30 days.
+
+\subsubsection{\cfyaml, another state engine}
+
+If you want to use a code generator, or parse configuration files,
+a YAML format can be used instead (or you could implement an \xml\ edition
+quite easily. For example the following may be a way of configuring
+your mailer installation:
+
+\begin{verbatim}
+- install: exim
+- filename: /usr/local/etc/exim
+  options:
+    recursive: true
+  user: mailnull
+  group: mail
+  mode: u=rwX,g=rX,o-rwx
+- filename: /etc/rc.conf
+  set:
+    - [sendmail_enable, '"NONE"']
+    - [exim_enable, '"YES"']
+    - [exim_flags, '"-bd -q5m"']
+\end{verbatim}
+
+\subsubsection{\libcfruby, the library}
+
+By studying the rdoc generated help files you can get a taste for the
+number of classes and methods that are available to Ruby programmers.
+
+Some quick examples:
+
+\scriptsize
+\begin{verbatim}
+   # user and group management
+   os = Cfruby::OS::OSFactory.new().get_os()
+   @manager = os.get_user_manager() 
+   grouplist = @manager.groups()
+   assert_equal(true, @manager.group?('bin'))
+   @manager.add_user("lijygrdwa")
+
+   # copying
+   Cfruby::FileOps.backup(@basefile.path)
+   Cfruby::FileOps.copy(copydirpath, newfilepath)
+
+   # tidying
+   Cfruby::FileOps.delete(@basedir, :glob => "^mail\.\d+\.log\.gz", 
+     :recursive => true)
+
+\end{verbatim}
+\normalsize
+
+and, unlike standard \ruby\ library calls you get full and
+configurable logging. An extensive version of the log can look like:
+
+\scriptsize
+\begin{verbatim}
+cfruby info [2] copy /mnt/flash/darcs/cf/cfwrk/masterfiles/Xresources to 
+  /home/wrk/.Xresources - attempt
+cfruby info [3] copy /mnt/flash/darcs/cf/cfwrk/masterfiles/Xresources to 
+  /home/wrk/.Xresources - aborted - files have the same sha1 hash
+cfruby info [2] changing permissions of "/home/wrk/.Xresources" to "400" - attempt
+cfruby info [1] changing permissions of "/home/wrk/.Xresources" to "400" - done
+cfruby info [1] Computer "palermo" belongs to classes "any, debianlinux, 
+  laptop, linux, pacs, wrk"
+\end{verbatim}
+\normalsize
+
+And it is easy to tune it down to any level you want. For example you
+can choose to only log changes really made to the system. You can
+disable/enable parts of the logger and control where to send the
+output.
+
+\subsubsection{Where are we now?}
+
+The documentation still has some holes, and needs further elaboration
+and work. Nevertheless \cfruby\ as well as the library is rather
+complete, can be considered beta, and is being used in a number of
+production systems. Late 2005 we will export a stable 1.0 edition of
+\cfruby. 
+
+Examples of \cfengine\ style scripts can be found in the
+./documentation/cfenjin/examples directory. So if you are armed with
+the standard GNU \cfengine\ documentation and a \ruby\ manual you
+should already be able to use \cfruby\ to your advantage.
+
+\subsubsection{Availability}
+
+\cfruby\ is open source and licensed using the GPL. Sources and
+documentation can be obtained from
+
+\begin{verbatim}
+  http://rubyforge.org/projects/cfruby/
+\end{verbatim}
+
+
+
+
+
+
+

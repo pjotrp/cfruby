@@ -1,0 +1,168 @@
+#!/usr/bin/env ruby
+
+# cfclient provides one side of a simple client/server structure that takes 
+# the following steps:
+# 1. Collect information about the running system (know)
+# 2. Connect to a known server (authenticate)
+# 3. Tell the server about yourself (describe)
+# 4. Receive instructions from the server and run them (act)
+
+require 'optparse'
+require 'yaml'
+require 'net/http'
+require 'uri'
+require 'rubygems'
+require_gem 'cfruby'
+
+module CfClient
+	
+	# reads options from the commandline into a Hash and
+	# returns it to the caller
+	def CfClient.get_options()
+		options = Hash.new()
+		options['verbosity'] = 'info'
+		possibleverbosity = ['debug', 'info', 'warn', 'error']
+
+		opts = OptionParser.new() { |opts|
+			opts.on_tail("-v", "--verbosity VERBOSITY", possibleverbosity.join(", ")) { |verbosity|
+				if(possibleverbosity.contains?(verbosity) == false)
+					$stderr.puts("Verbosity must be one of #{possibleverbosity.join(', ')}")
+					exit(1)
+				end
+				options['verbosity'] = verbosity
+			}
+
+			opts.on_tail("-h", "--help", "Print this message") {
+				print(opts)
+				exit()
+			}
+			
+			opts.on("-s", "--server HOSTNAME", "hostname of the cfserver instance to connect to") { |serverhost|
+				options['serverhost'] = serverhost
+			}
+			
+			opts.on("-n", "--noop", "Collects information that would be sent to the server and prints it to stdout") {
+				options['noop'] = true
+			}
+
+			opts.on("-l", "--log LOGFILE", "Location of the log file") { |filename|
+				options['log'] = filename
+			}
+			
+			opts.on("-c", "--conf CONFFILE", "Location of the configuration file - if any") { |filename|
+				options['conffile'] = filename
+			}
+		}
+
+		opts.parse(ARGV)
+
+		if(options['conffile'])
+			options = parse_conf_file(options)
+		end
+		
+		if(!options['serverhost'] and !options['noop'])
+				$stderr.print("serverhost (-s) must be set\n")
+				exit(1)
+		elsif(options['serverhost'])
+			begin
+				options['serverhost'] = URI.parse(options['serverhost'])
+			rescue
+				$stderr.print("Unable to parse #{options['serverhost']} - #{$!}\n")
+				exit(1)
+			end
+		end
+		
+		return(options)
+	end
+	
+	
+	# given an options hash, parse_conf_file parses a configuration file given in
+	# options['conffile'] and returns an updated options hash based on the conf
+	# file contents
+	def CfClient.parse_conf_file(options)
+		# read it in as a YAML file and check that it is a Hash
+		confoptions = YAML.load_file(options['conffile'])
+		if(!confoptions.kind_of?(Hash))
+			raise(StandardError, "Error reading configuration file, should contain only name: value pairs")
+		end
+		
+		# go through each item in the conf file Hash and set the options Hash if
+		# it is not already set (options on the command line should always override)
+		confoptions.each_key() { |key|
+			if(!options.has_key?(key))
+				options[key] = confoptions[key]
+			end
+		}
+		
+		return(options)
+	end
+	
+	
+	# returns a data structure representing the system it is currently 
+	# running on. Specifically it returns a Hash with as many as possible
+	# of the following fields:
+	# packages:: A PackageList as returned by Cfruby::PackageManager.installed_packages.to_hash()
+	# processes:: A ProcessList as returned by Cfruby::ProcessManager.processes.to_hash()
+	# users:: A UserList as returned by Cfruby::UserManager.users.to_hash()
+	# groups:: A GroupList as returned by Cfruby::UserManager.groups.to_hash()
+	# os:: The os name
+	# version:: The version of the os
+	# hostname:: The full hostname of the box
+	def CfClient.get_system_info()
+		info = Hash.new()
+
+		os = Cfruby::OS::OSFactory.new.get_os()
+		packagemgr = os.get_package_manager()
+		processmgr = os.get_process_manager()
+		usermgr = os.get_user_manager()
+
+		info['os'] = os.name
+		info['version'] = os.version
+		info['hostname'] = os.hostname
+		info['packages'] = packagemgr.installed_packages.to_hash
+		info['processes'] = processmgr.processes.to_hash
+		info['users'] = usermgr.users.to_hash
+		info['groups'] = usermgr.groups.to_hash
+		
+		return(info)
+	end
+	
+	
+	# connects to the server side and returns a connection object
+	def CfClient.connect()
+		
+	end
+	
+	
+	def CfClient.main()
+		@options = get_options()
+		
+		# collect the system information
+		systeminfo = get_system_info()
+		
+		# if we are in noop mode, just print it and exit
+		if(@options['noop'] == true)
+			puts(systeminfo.to_yaml)
+			exit()
+		end
+
+		# connect, authenticate, post, and get response
+		begin
+	    res = Net::HTTP.new(@options['serverhost'].host, @options['serverhost'].port).post @options['serverhost'].path, "clientdata=" + URI.escape(systeminfo.to_yaml())
+	    case res
+		    when Net::HTTPSuccess, Net::HTTPRedirection
+		      # OK
+					puts res.body
+		    else
+		      res.error!
+		    end
+		rescue
+			$stderr.puts("Error connecting to server (#{@options['serverhost']}) - #{$!}")
+			exit(1)
+		end
+	end
+	
+end
+
+
+CfClient.main()

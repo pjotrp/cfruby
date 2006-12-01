@@ -1,0 +1,26 @@
+This file contains the flow monitor conventions used by libcfruby.  Since 
+the FlowMonitor library used by libcfruby for logging and message passing 
+attempts to be usage agnostic, a system of messages and tags must be agreed 
+upon for it to have the maximum use.
+
+libcfruby uses the basic conventions implemented as helper functions in the 
+FlowMonitor library, meaning that the following message types are used:
+
+intention - Used to indicate that the message indicates something that the 
+library is about to do, but hasn't yet.  Any observer may respond with 
+false to prevent the action from taking place.
+
+exception - Used to indicate that an exception has been raised
+
+info, warn, debug - Used to implement standard logging.
+
+In addition the following tags are attached to messages (mostly 
+intentions) to aid observers in making decisions:
+
+nonreversible - The action cannot be reversed (e.g. a file deletion)
+destructive - The action writes something to a filesystem (e.g. a file backup)
+unknown - The action has potentially far-reaching and unknown consequences, 
+	but may also have none.  Mostly used to mark when an external script is 
+	to be run.
+exec - The action is the running of a user-provided executable command
+install - The action is the installation of a program

@@ -1,0 +1,248 @@
+-
+  filename: /etc/localtime
+  template: /usr/share/zoneinfo/EST5EDT
+-
+  filename: /etc/rc.conf
+  set:
+    - [inetd_enable, '"NO"']
+-
+  filename: /etc/ssh/sshd_config
+  user: root
+  group: wheel
+  mode: u=rw,o-rwx
+  set:
+    options:
+      whitespace: true
+    set:
+    - [PermitRootLogin, without-password]
+    - [Protocol, 2]
+-
+  - install: nano
+-
+  - install: databases/postgresql80-server
+  - filename: /usr/local/pgsql/data
+    mkdir: true
+    options:
+      recursive: true
+    user: pgsql
+    group: pgsql
+    mode: u=rwX,go-rwx
+  - execute: /usr/local/bin/initdb /usr/local/pgsql/data
+    user: pgsql
+    conditions: '"/usr/local/pgsql/data".fileempty?()'
+  - filename: /etc/rc.conf
+    set:
+      - [postgresql_enable, '"YES"']
+  - conditions: '!$proc.has_process?(/postmaster/)'
+    execute: /usr/local/etc/rc.d/010.pgsql.sh start
+  - filename: /usr/local/pgsql/data/mailserverschema
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/mailserver/postgresql/mailserverschema
+    user: pgsql
+    group: pgsql
+    mode: u=rw,go-rwx
+  - filename: /usr/local/pgsql/data/pg_ident.conf
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/mailserver/postgresql/pg_ident.conf
+    must_contain:
+      - admin         pgsql             pgsql
+      - admin         root              pgsql
+  - filename: /usr/local/pgsql/data/pg_hba.conf
+    comment: trust
+    replace:
+      - [ 'local all all', 'local   all         all                                             ident admin' ]
+      - [ 'host email emailuser', 'host    email       emailuser    65.204.53.0/24         md5' ]
+  - conditions: `su - pgsql -c '/usr/local/bin/psql -l'` !~ /email/
+    actions:
+      - execute: /usr/local/bin/psql template1 < /usr/local/pgsql/data/mailserverschema
+        user: pgsql
+      - execute: /usr/local/etc/rc.d/010.pgsql.sh restart
+-
+  - filename: /etc/make.conf
+    touch: true
+    user: root
+    group: wheel
+    set:
+      - [WITH_PGSQL, yes]
+      - [WITH_EXISCAN_ACL, yes]
+      - [WITHOUT_PAM, yes]
+      - [WITHOUT_MAILSTORE, yes]
+      - [WITHOUT_MBX, yes]
+      - [WITHOUT_CDB, yes]
+      - [WITHOUT_DSEARCH, yes]
+      - [WITHOUT_NIS, yes]
+      - [WITHOUT_PERL, yes]
+  - install: exim
+  - filename: /usr/local/etc/exim/configure
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/mailserver/exim/configure
+    conditions: 'FileEdit.contains?("/usr/local/etc/exim/configure", "hide pgsql_servers")'
+  - filename: /usr/local/etc/exim/configure
+    user: root
+    group: mail
+    mode: u=rwX,go-rwx
+  - filename: /usr/local/etc/exim/eximtls-cert.pem
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/mailserver/exim/eximtls-cert.pem
+  - filename: /usr/local/etc/exim/eximtls-key.pem
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/mailserver/exim/eximtls-key.pem
+  - filename: /usr/local/etc/exim/eximtls-dhparam.pem
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/mailserver/exim/eximtls-dhparam.pem
+  - filename: /usr/local/etc/exim
+    options:
+      recursive: true
+      exclude: configure
+    user: root
+    group: mail
+    mode: u=rwX,g=rX,o-rwx
+  - filename: /etc/rc.conf
+    set:
+      - [sendmail_enable, '"NONE"']
+      - [exim_enable, '"YES"']
+      - [exim_flags, '"-bd -q5m"']
+-
+  - filename: /etc/make.conf
+    touch: true
+    user: root
+    group: wheel
+    set:
+      - [WITH_TRASHQUOTA, yes]
+      - [WITH_FAM, yes]
+  - install: databases/courier-authlib-pgsql
+  - filename: /usr/local/etc/authlib/authpgsqlrc
+    template: /usr/local/etc/authlib/authpgsqlrc.dist
+    comment: !ruby/regexp /PGSQL_CRYPT_PWFIELD\s+[a-zA-Z]+$/
+    uncomment:
+      - !ruby/regexp /PGSQL_CLEAR_PWFIELD\s+[a-zA-Z]+$/
+      - !ruby/regexp /PGSQL_MAILDIR_FIELD\s+[a-zA-Z]+$/
+    set:
+      options:
+        whitespace: true
+      set:
+        - [ PGSQL_HOST, 127.0.0.1 ]
+        - [ PGSQL_PORT, 5432 ]
+        - [ PGSQL_USERNAME, emailuser ]
+        - [ PGSQL_PASSWORD, emailpass ]
+        - [ PGSQL_DATABASE, email ]
+        - [ PGSQL_USER_TABLE, courierauth ]
+        - [ PGSQL_CLEAR_PWFIELD, clear ]
+        - [ PGSQL_MAILDIR_FIELD, maildir ]
+  - filename: /usr/local/etc/authlib/authdaemonrc
+    set:
+      - [ authmodulelist, '"authpgsql"' ]
+  - conditions: '!$proc.has_process?(/authdaemond/)'
+    execute: /usr/local/etc/rc.d/courier-authdaemond.sh start
+  - install: courier-imap
+  - filename: /usr/local/etc/courier-imap/imapd
+    set:
+      - [ MAXPERIP, 40 ]
+  - filename: /usr/local/etc/courier-imap/imapd.cnf
+    template: /usr/local/etc/courier-imap/imapd.cnf.dist
+  - filename: /usr/local/etc/courier-imap/pop3d.cnf
+    template: /usr/local/etc/courier-imap/pop3d.cnf.dist
+  - conditions: '!File.exists?("/usr/local/share/courier-imap/imapd.pem")'
+    exec: /usr/local/share/courier-imap/mkimapdcert
+  - conditions: '!File.exists?("/usr/local/share/courier-imap/pop3d.pem")'
+    exec: /usr/local/share/courier-imap/mkpop3dcert
+  - filename: /etc/rc.conf
+    set:
+      - [ courier_authdaemond_enable, "YES" ]
+      - [ courier_imap_imapd_enable, "YES" ]
+      - [ courier_imap_imapd_ssl_enable, "YES" ]
+      - [ courier_imap_pop3d_enable, "YES" ]
+      - [ courier_imap_pop3d_ssl_enable, "YES" ]
+  - conditions: '!$proc.has_process?(/-noidentlookup 143 \/usr\/local\/sbin\/imaplogin \/usr\/local\/bin\/imapd/)'
+    execute: /usr/local/etc/rc.d/courier-imap-imapd.sh start
+  - conditions: '!$proc.has_process?(/\/usr\/local\/bin\/couriertls/)'
+    execute: /usr/local/etc/rc.d/courier-imap-imapd-ssl.sh start
+  - conditions: '!$proc.has_process?(/-noidentlookup 110 \/usr\/local\/sbin\/pop3login \/usr\/local\/bin\/pop3d/)'
+    execute: /usr/local/etc/rc.d/courier-imap-pop3d.sh start
+  - conditions: '!$proc.has_process?(/-noidentlookup 995 \/usr\/local\/bin\/couriertls -server -tcpd \/usr\/local\/sbin\/pop3login/)'
+    execute: /usr/local/etc/rc.d/courier-imap-pop3d-ssl.sh start
+-
+  - install: mail/p5-Mail-SpamAssassin
+  - conditions: '!FileEdit.contains?("/usr/local/etc/mail/spamassassin/local.cf", "clear_report_template")'
+    eval: 'FileOps.copy("rsync://mail1.willcap.com:/usr/local/etc/mail/", "/usr/local/etc/mail/", :archive => true)'
+  - filename: /etc/rc.conf
+    set:
+      - [ spamd_enable, '"YES"' ]
+      - [ spamd_flags, '"-A 127.0.0.1,65.204.53.0/24 -i 127.0.0.1 -c -d -r /var/run/spamd.pid"' ]
+  - conditions: '!$proc.has_process?(/spamd/)'
+    execute: /usr/local/etc/rc.d/sa-spamd.sh start
+-
+  - install: security/clamav
+  - filename: /usr/local/etc/clamd.conf
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/all/clamav/clamd.conf
+  - filename: /etc/rc.conf
+    set:
+      - [ clamav_clamd_enable, '"YES"' ]
+  - conditions: '!$proc.has_process?(/clamd/)'
+    execute: /usr/local/etc/rc.d/clamav-clamd.sh start
+-
+  - filename: /etc/make.conf    
+    set:
+      - [WITH_PGSQL, yes]
+  - install: nagios-plugins
+-
+  - install: portaudit
+  - execute: /usr/local/sbin/portaudit -F
+    conditions: '"/var/db/portaudit".fileempty?()'
+-
+  - install: sudo
+-
+  - install: lighttpd
+  - filename: /var/log/lighttpd.access.log
+    touch: true
+    user: www
+    group: www
+  - filename: /var/log/lighttpd.error.log
+    touch: true
+    user: www
+    group: www
+  - filename: /usr/local/etc/lighttpd.conf
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/webserver/lighttpd.conf
+    set:
+      - [ server.document-root, '"/usr/local/www/data/ismail"' ]
+  - filename: /etc/make.conf    
+    set:
+      - [WITH_REDIRECT, yes]
+      - [WITH_FASTCGI, yes]
+  - install: 
+    - www/php4-cgi
+    - mail/php4-imap
+    - textproc/php4-domxml
+    - devel/php4-pcre
+    - www/php4-session
+    - ismail
+  - filename: /usr/local/www/data/ismail
+    options:
+      recursive: true
+      exclude: users
+    user: www
+    group: www
+    mode: ug=rX,o-rwx
+  - filename: /usr/local/www/data/ismail/include/ismail.conf
+    template: /usr/local/www/data/ismail/include/ismail.conf.sample
+  - filename: /usr/local/www/data/ismail/users
+    mkdir: true
+    user: www
+    group: www
+    mode: ug=rwx,o-rwx    
+  - filename: /etc/rc.conf
+    set:
+      - [ lighttpd_enable, '"YES"' ]
+-
+  - install: daedalus
+  - filename: /usr/local/etc/daedalus/daedalus.xml
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/mailserver/daedalus/daedalus.xml
+  - filename: /usr/local/etc/daedalus/templates.xml
+    template: rsync://cfruby@www.willcap.com:/home/cfruby/all/daedalus/templates.xml
+  - filename: /usr/local/etc/daedalus
+    options:
+      recursive: true
+    user: root
+    group: wheel
+    mode: u=rw,go-rwx 
+  - filename: /etc/rc.conf
+    set:
+      - [ daedalus_enable, '"YES"' ]
+  - conditions: '!$proc.has_process?(/daedalus/)'
+    execute: /usr/local/etc/rc.d/daedalus.sh start
+-
+  - install: rsyncmanager

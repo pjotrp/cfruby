@@ -1,0 +1,255 @@
+
+\subsection{Logging and Debugging in Cfruby}
+
+Cfruby serves a dual purpose, first as a Ruby library for system
+administration (cfrubylib) and second as a replacement for the
+Cfengine tool (Cfruby), we realised we had conflicting requirements
+handling output messages at the library level.
+
+The library 'cfrubylib' is to be used from (generic) Ruby programs and
+any output messages should be controlled by the calling program - and
+often there should be no output whatsoever.
+
+On the other hand Cfruby - the Cfengine like language and parser -
+requires logging and verbosity at the library level - otherwise all
+the logging 'logic' has to be handled before and after calling into
+library functions. There is duplication of code if one handles it like
+this:
+
+\begin{verbatim}
+log 'Message1' if !File.exist? fn1
+log 'Message2' if File.exist? fn2
+if !lib.cp fn1,fn2
+  log 'Message3' 
+end
+(...)
+\end{verbatim}
+
+You can imagine the File.exist? statements also happen inside the
+method 'lib.cp'. 
+
+At this stage we came up with a logger class that can be overridden by
+a program, or by Cfruby itself. The standard library calls into an
+empty default. Simplistically you would create your own logger and
+override the standard version:
+
+\begin{verbatim}
+class Logger
+
+  def message m
+    'do something'
+  end
+
+end
+\end{verbatim}
+
+Next we realised that we also do not want to clutter the library code
+itself with logging messages(!) At this stage the library code would
+look like this:
+
+\begin{verbatim}
+def cp fn1, fn2
+  logger.message 'Message1' if !File.exist? fn1
+  logger.message 'Message2' if File.exist? fn2
+  if !Fileutils.cp fn1,fn2
+    logger.message 'Message3' 
+  else
+    logger.message 'Message4'
+  end
+end
+(...)
+\end{verbatim}
+
+You can see it is still ugly and takes attention away from the main
+code. Next we thought we should use closures to reduce the number
+of messages:
+
+\begin{verbatim}
+def cp fn1, fn2
+  logger.test('Message',fn1) {
+    File.exist? fn1
+  }
+  logger.test('Message',fn2) {
+    File.exist? fn2
+  }
+  logger.act('Message',fn1,fn2) {
+    Fileutils.cp fn1,fn2
+  }
+end
+\end{verbatim}
+
+Where failure is handled through exceptions - so the logger.act method
+'knows' which messages to display. This setup has the additional
+benefit that the implementation of 'logger.act' can also switch of
+execution of the code(!) I.e. when running the program in --dry-run
+mode. Nice!
+
+Finally the masterstroke - Dave Powers turned the logger into a more
+generic 'flowmonitor' which leads to code like
+
+\begin{verbatim}
+    # Remove a directory entry. +dirname+ can be a list.
+    def FileOperations.rmdir(dirname)
+      if(dirname.kind_of?(String))
+        dirname = Array.[](dirname)
+      end
+
+      dirname.each do | d |
+        Cfruby.controller.attempt("rmdir #{d}", 'nonreversible', 'destructive')
+        {
+          FileUtils.rmdir d
+          Cfruby.controller.inform('debug', "deleted directory \"#{d}\"")
+        }
+      end
+    end
+\end{verbatim}
+
+The idea is that we use something like a modified observer, where the
+library simple tells the observer for each logical action (which may
+be a largish chunk of real code) what it intends to do, and also some
+general (probably arbitrary tag) information about the type of action
+that it is.  The code calling the library registers as an observer and
+it informed about each action, at which point it can do whatever it
+wants with that information (log it, store it, discard it, etc) and
+can *respond* to the message - indicating that it should or should not
+carry out the action.  Then it is in-turn informed again with a
+success (and maybe failure?) message.  The point here is that this
+sort of thing is much more suitable for a library that is meant to be
+driven and used in a potentially fine-grained manner.  The logging can
+now be modified in the parser and driving code to your hearts content.
+Only want to log some types of actions, fine.  Only want summary
+output, fine.  Want it all, fine.  Want a dry run, fine.  Only want
+actions that don't touch the network, fine... so on and so on.  This
+is really only limited by the quality of the message we pass and how
+finely grained we want to make it in the library code.
+
+If you attach an Observer to the Cfruby.controller object and run some
+FileOperations you should get nice set of messages into your
+overridden handle\_message function detailing exactly what the module
+is doing.  If you further change handle\_message to return false then
+it will only tell you what it plans to do, rather than actually doing
+it.  You can also tweak based on the message type or message tags (see
+flowmonitor.rb for more details) for very fine grained control.  With
+this you should be able to put all your logging logic in one spot and
+all your dry-run logic in another (you can have multiple observers
+that are called in the order of registration until they all pass or
+one of them cancels the flow by returning false - so you could
+register a logger first and a dry-run observer second).
+
+If you wanted to simple send a message to the observer without
+actually wrapping it in an attempt block you can just call
+Controller.send\_message with a message object of your own
+construction.  The attempt block is just my attempt to provide a very
+thin wrapper around what I think is going to be the most common use of
+the object.  On the back-end attempt uses only publicly available
+methods to do its work, and it could all be done by the library using
+direct calls instead.  In the case you asked about...
+
+You can see that this allows a fine-grained approach to logging -
+where the logging information actually helps documenting the code
+without becoming disturbing. This is where techniques like aspect
+oriented programming (AOP) fall short. The granularity of AOP is at
+the method level. With our 'flowmonitor' we get control without
+sacrificing readability. Thanks to Ruby's closures.
+
+
+\subsection{Verbose vs. Trace}
+
+The thing to keep in mind are the verbosity (1..3) and trace levels
+(1..3). Trace is for debugging purposes, to see where a script
+fails. Verbose is for checking activity on the system.
+
+If you would use trace 1 you just want to see major landmarks - like
+entering a function.
+
+Trace level 3 is every action and level 2 is somewhere in between.
+
+With verbose level 1 is show changes only - file copied for example.
+Level 2 is all actions (check file exists) and level 3 is everything.
+
+So they serve different purposes.
+Logging
+
+For Cfruby there are really two levels of logging - outside the
+standard 'FATAL, ERROR, WARN, INFO, DEBUG':
+
+1. Display all activity - i.e. check file attributes
+
+2. Display changes only - i.e. display when file attribute changes
+
+So we need 'FATAL, ERROR, WARN, INFO, DEBUG' for program/library
+behaviour and additionally 'ACTIVITY,CHANGES' for Cfruby output.
+
+Because this is what the user wants to see when running the engine.
+Either he is checking his 'code' or he is tracking changes.
+
+Within these two levels we want to be able to filter on actions. I.e.
+a user may want to see changes only on tidy, but all activity on file.
+So every action sequence should have it's own logger -
+configurable through both the command line and control.
+
+Furthermore, with both levels we also want to be able to distinguish
+some levels of severity where the user (typically) can decide on
+verbosity. I suggest three levels. The code could look like:
+
+\begin{verbatim}
+  logger = Logger.new(FILE)
+  logger.addDefault(CHANGES,2)
+  logger.addAction('File',ACTIVITY[,1])
+\end{verbatim}
+
+
+And in the code:
+
+\begin{verbatim}
+  logger.activity(1,'chmod #{fn} to #{act}')
+\end{verbatim}
+
+The logger defaults to no output in the library version of cfruby, but
+a user should be able to switch it on, so we can add logging
+statements at that level, instead of creating a wrapper.
+
+
+
+The flow controller from Cfruby has to support verbose and debug              
+(--trace) levels (each 3 levels).                                             
+                                                                              
+Verbosity is set by the end-user.                                             
+                                                                   
+\begin{verbatim}
+    #   VERBOSE_MINOR    (1)   Minor notification                             
+    #   VERBOSE_MAJOR    (2)   Major notification                             
+    #   VERBOSE_CRITICAL (3)   Critical notification                          
+\end{verbatim}
+                                                                              
+Debugging is for testing/development:                                          
+                
+\begin{verbatim}
+    #   TRACE_LIBRARY    (1)   Library (scripting) level                      
+    #   TRACE_ENGINE     (2)   Engine level                                   
+    #   TRACE_ALL        (3)   Trace all                                      
+\end{verbatim}
+                                                              
+                                                                              
+Check also ./lib/Cfruby/cfp\_logger.rb                                         
+                                                                              
+I hope I can retain this behaviour from your library, where I only use        
+verbosity levels. A user running at level 3 only sees changes to the          
+system:                                                                       
+                                                                              
+'copied file'                                                                 
+
+'deleted file'                                                                
+                                                                              
+A user at level 2 also sees activity:                                         
+                                                                              
+'check file'                                                                  
+                                                                              
+A user at level 1 sees everything worth mentioning:         
+                                                                              
+'executing cfcupsd.rb'                                                        
+                                                                              
+etc.                                                                          
+               
+                                                                              
+
