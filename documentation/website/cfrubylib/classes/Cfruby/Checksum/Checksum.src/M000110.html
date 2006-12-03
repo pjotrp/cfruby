@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>check_mode (Cfruby::Checksum::Checksum)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File checksum.rb, line 259</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">check_mode</span>()
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;checking checksum database permisions for \&quot;#{@databasefile}\&quot;&quot;</span>)
+
+                                <span class="ruby-comment cmt">#if it does exist test the mode.  Raise an exception if it fails the test or return true</span>
+                                <span class="ruby-identifier">stat</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-ivar">@databasefile</span>)
+                                
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">stat</span>.<span class="ruby-identifier">mode</span> <span class="ruby-operator">!=</span> <span class="ruby-ivar">@statmode</span>)
+                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ChecksumPermissionError</span>, <span class="ruby-node">&quot;Checksum database \&quot;#{@databasefile}\&quot; does not have permissions of \&quot;#{@mode.to_s(8)}\&quot;&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">stat</span>.<span class="ruby-identifier">uid</span> <span class="ruby-operator">!=</span> <span class="ruby-ivar">@user</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">stat</span>.<span class="ruby-identifier">gid</span> <span class="ruby-operator">!=</span> <span class="ruby-ivar">@group</span>)
+                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ChecksumOwnershipError</span>, <span class="ruby-node">&quot;Checksum database \&quot;#{@databasefile}\&quot; is not owned by uid #{@user} and group #{@group}&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">true</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

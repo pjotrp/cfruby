@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>create (Cfruby::FileOps)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileops.rb, line 464</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">create</span>(<span class="ruby-identifier">filenames</span>, <span class="ruby-identifier">owner</span> = <span class="ruby-constant">Process</span><span class="ruby-operator">::</span><span class="ruby-constant">Sys</span>.<span class="ruby-identifier">geteuid</span>(), <span class="ruby-identifier">group</span> = <span class="ruby-constant">Process</span><span class="ruby-operator">::</span><span class="ruby-constant">Sys</span>.<span class="ruby-identifier">getegid</span>(), <span class="ruby-identifier">mode</span> = <span class="ruby-value">0600</span>)
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">filenames</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">String</span>))
+                                <span class="ruby-identifier">filenames</span> = <span class="ruby-constant">Array</span>.[](<span class="ruby-identifier">filenames</span>)
+                        <span class="ruby-keyword kw">end</span>
+
+        <span class="ruby-identifier">created</span> = <span class="ruby-keyword kw">false</span>
+                        <span class="ruby-identifier">filenames</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">filename</span><span class="ruby-operator">|</span>
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;create #{filename}&quot;</span>, <span class="ruby-value str">'destructive'</span>) {
+                                        <span class="ruby-identifier">currentumask</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">umask</span>()
+                                        <span class="ruby-keyword kw">begin</span>
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">test</span>(<span class="ruby-value">?f</span>, <span class="ruby-identifier">filename</span>))
+                                                        <span class="ruby-comment cmt"># set a umask that disables all access to the file by default</span>
+                                                        <span class="ruby-constant">File</span>.<span class="ruby-identifier">umask</span>(<span class="ruby-value">0777</span>)
+                                                        <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">CREAT</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">WRONLY</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">fp</span><span class="ruby-operator">|</span> 
+                                                        }
+                                                        <span class="ruby-identifier">created</span> = <span class="ruby-keyword kw">true</span>
+                                                <span class="ruby-keyword kw">end</span>
+                                                <span class="ruby-identifier">chmod</span> = <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">chmod</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">mode</span>)
+                                                <span class="ruby-identifier">chown</span> = <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">chown</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">owner</span>, <span class="ruby-identifier">group</span>)
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">chmod</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">false</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">chown</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">false</span>)
+                                                  <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-node">&quot;\&quot;#{filename}\&quot; exists and has the appropriate owner, group, and mode&quot;</span>)
+                                                <span class="ruby-keyword kw">else</span>
+                                                  <span class="ruby-identifier">created</span> = <span class="ruby-keyword kw">true</span>
+                                          <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-keyword kw">ensure</span>
+                                                <span class="ruby-comment cmt"># restore the umask</span>
+                                                <span class="ruby-constant">File</span>.<span class="ruby-identifier">umask</span>(<span class="ruby-identifier">currentumask</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                        }
+                        
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">created</span>)
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

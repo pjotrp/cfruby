@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>users (Cfruby::Users::OSXUserManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/osx.rb, line 205</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">users</span>()
+                                <span class="ruby-identifier">users</span> = <span class="ruby-constant">UserList</span>.<span class="ruby-identifier">new</span>()
+
+                                <span class="ruby-comment cmt"># get the list of users using niutil</span>
+                                <span class="ruby-identifier">textlist</span> = <span class="ruby-value">`niutil -list . /users`</span>
+                                <span class="ruby-identifier">textlist</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">line</span>.<span class="ruby-identifier">strip!</span>()
+                                        <span class="ruby-identifier">user</span> = <span class="ruby-constant">UserInfo</span>.<span class="ruby-identifier">new</span>()
+                                        <span class="ruby-identifier">user</span>.<span class="ruby-identifier">username</span> = <span class="ruby-identifier">line</span>[<span class="ruby-regexp re">/^[0-9]+\s+(\S+)$/</span>, <span class="ruby-value">1</span>]
+                                        <span class="ruby-identifier">userlist</span> = <span class="ruby-node">`niutil -read . /users/#{user.username}`</span>
+                                        <span class="ruby-identifier">userlist</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">subline</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-identifier">subline</span>.<span class="ruby-identifier">strip!</span>()
+                                                <span class="ruby-keyword kw">case</span>(<span class="ruby-identifier">subline</span>)
+                                                        <span class="ruby-keyword kw">when</span>(<span class="ruby-regexp re">/^home:/</span>)
+                                                                <span class="ruby-identifier">user</span>.<span class="ruby-identifier">homedir</span> = <span class="ruby-identifier">subline</span>[<span class="ruby-regexp re">/:\s*(.*)$/</span>, <span class="ruby-value">1</span>]
+                                                        <span class="ruby-keyword kw">when</span>(<span class="ruby-regexp re">/^uid:/</span>)
+                                                                <span class="ruby-identifier">user</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-identifier">subline</span>[<span class="ruby-regexp re">/:\s*(.*)$/</span>, <span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span>()
+                                                        <span class="ruby-keyword kw">when</span>(<span class="ruby-regexp re">/^gid:/</span>)
+                                                                <span class="ruby-identifier">user</span>.<span class="ruby-identifier">gid</span> = <span class="ruby-identifier">subline</span>[<span class="ruby-regexp re">/:\s*(.*)$/</span>, <span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span>()
+                                                        <span class="ruby-keyword kw">when</span>(<span class="ruby-regexp re">/^realname:/</span>)
+                                                                <span class="ruby-identifier">user</span>.<span class="ruby-identifier">fullname</span> = <span class="ruby-identifier">subline</span>[<span class="ruby-regexp re">/:\s*(.*)$/</span>, <span class="ruby-value">1</span>]
+                                                <span class="ruby-keyword kw">end</span>
+                                        }
+
+                                        <span class="ruby-identifier">users</span>[<span class="ruby-identifier">user</span>.<span class="ruby-identifier">username</span>] = <span class="ruby-identifier">user</span>
+                                }
+
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">users</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

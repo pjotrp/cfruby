@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>touch (Cfruby::FileOps)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileops.rb, line 333</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">touch</span>(<span class="ruby-identifier">filename</span>)
+                  <span class="ruby-identifier">created</span> = <span class="ruby-keyword kw">false</span>
+                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;touch #{filename}&quot;</span>) {
+                                <span class="ruby-keyword kw">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span> <span class="ruby-identifier">filename</span>
+                                        <span class="ruby-comment cmt"># if the file already exists do nothing</span>
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-node">&quot;#{filename} already exists - won't create&quot;</span>)
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-identifier">f</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">filename</span>,<span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">CREAT</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">TRUNC</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">RDWR</span>)
+                                        <span class="ruby-identifier">f</span>.<span class="ruby-identifier">close</span>
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'verbose'</span>, <span class="ruby-node">&quot;created file #{filename}&quot;</span>)
+                                        <span class="ruby-identifier">created</span> = <span class="ruby-keyword kw">true</span>
+                                <span class="ruby-keyword kw">end</span>
+                        }
+                        
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">created</span>)
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>convert_to_fuzzy_regex (Cfruby::FileEdit)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileedit.rb, line 642</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileEdit</span>.<span class="ruby-identifier">convert_to_fuzzy_regex</span>(<span class="ruby-identifier">str</span>, <span class="ruby-identifier">options</span> = {})
+                        <span class="ruby-identifier">tokens</span> = <span class="ruby-identifier">str</span>.<span class="ruby-identifier">strip</span>.<span class="ruby-identifier">split</span>(<span class="ruby-regexp re">/\s+/</span>).<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">tok</span><span class="ruby-operator">|</span>
+                                <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">escape</span>(<span class="ruby-identifier">tok</span>)
+                        }
+                        
+                        <span class="ruby-identifier">regex</span> = <span class="ruby-identifier">tokens</span>.<span class="ruby-identifier">join</span>(<span class="ruby-value str">&quot;\\s+&quot;</span>)
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">options</span>[<span class="ruby-identifier">:partialstr</span>])
+                                <span class="ruby-identifier">regex</span> = <span class="ruby-node">&quot;^\\s*#{regex}\\s*$&quot;</span>
+                        <span class="ruby-keyword kw">end</span>
+                        <span class="ruby-identifier">regex</span> = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">regex</span>)
+                        
+                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;\&quot;#{str}\&quot; converted to \&quot;#{regex.source()}\&quot;&quot;</span>)
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">regex</span>)
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

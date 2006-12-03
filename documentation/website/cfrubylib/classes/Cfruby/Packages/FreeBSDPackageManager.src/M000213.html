@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>installed? (Cfruby::Packages::FreeBSDPackageManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/freebsd.rb, line 353</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">installed?</span>(<span class="ruby-identifier">package</span>)
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;Getting installed? status of \&quot;#{package}\&quot; by origin&quot;</span>)
+
+                                <span class="ruby-identifier">installed_packages</span>.<span class="ruby-identifier">each_value</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">packageinfo</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">packageinfo</span>.<span class="ruby-identifier">origin</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">package</span>)
+                                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">true</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">super</span>(<span class="ruby-identifier">package</span>))
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

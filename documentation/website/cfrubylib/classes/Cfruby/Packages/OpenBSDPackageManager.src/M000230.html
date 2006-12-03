@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>uninstall (Cfruby::Packages::OpenBSDPackageManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/openbsd.rb, line 309</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">uninstall</span>(<span class="ruby-identifier">packagename</span>)
+                                <span class="ruby-identifier">packagename</span>.<span class="ruby-identifier">strip!</span>()
+
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;Uninstalling \&quot;#{packagename}\&quot;&quot;</span>, <span class="ruby-value str">'destructive'</span>, <span class="ruby-value str">'unknown'</span>) {
+                                        <span class="ruby-comment cmt"># we have to iterate through all the attributes (name, name-version, origin) to properly delete what this could be.</span>
+                                        <span class="ruby-identifier">packagetodelete</span> = <span class="ruby-keyword kw">nil</span>
+                                        <span class="ruby-identifier">installed_packages</span>().<span class="ruby-identifier">each_value</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">package</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-keyword kw">if</span>((<span class="ruby-identifier">packagename</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">package</span>.<span class="ruby-identifier">name</span>) <span class="ruby-keyword kw">or</span> (<span class="ruby-identifier">packagename</span> <span class="ruby-operator">==</span> <span class="ruby-node">&quot;#{package.name}-#{package.version}&quot;</span>))
+                                                        <span class="ruby-identifier">packagetodelete</span> = <span class="ruby-identifier">package</span>.<span class="ruby-identifier">name</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'-'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">package</span>.<span class="ruby-identifier">version</span>
+                                                        <span class="ruby-keyword kw">break</span>
+                                                <span class="ruby-keyword kw">end</span>
+                                        }
+
+                                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">packagetodelete</span>.<span class="ruby-identifier">nil?</span>
+                                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-node">&quot;package \&quot;#{packagename}\&quot;: not installed&quot;</span>)
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-constant">Exec</span>.<span class="ruby-identifier">exec</span>(<span class="ruby-node">&quot;/usr/sbin/pkg_delete #{packagetodelete}`&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

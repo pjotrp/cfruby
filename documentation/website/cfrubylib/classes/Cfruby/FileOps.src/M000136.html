@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>flock (Cfruby::FileOps)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileops.rb, line 502</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">flock</span>(<span class="ruby-identifier">fn</span>, <span class="ruby-identifier">attr</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">ext</span>=<span class="ruby-value str">'.cflock'</span>)
+                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;lock #{fn}&quot;</span>) {
+                                <span class="ruby-keyword kw">begin</span>
+                                        <span class="ruby-identifier">fnlock</span> = <span class="ruby-identifier">fn</span><span class="ruby-operator">+</span><span class="ruby-identifier">ext</span>
+                                        <span class="ruby-keyword kw">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span> <span class="ruby-identifier">fnlock</span>
+                                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">&quot;warn&quot;</span>, <span class="ruby-node">&quot;File #{fn} is locked by #{fnlock} (remove to fix) - skipping!&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;locking #{fnlock}&quot;</span>)
+                                        <span class="ruby-identifier">fl</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span> <span class="ruby-identifier">fnlock</span>,<span class="ruby-value str">'w'</span>
+                                        <span class="ruby-identifier">fl</span>.<span class="ruby-identifier">print</span> <span class="ruby-node">&quot;pid=#{Process.pid}\nCfruby lock file&quot;</span>
+                                        <span class="ruby-identifier">fl</span>.<span class="ruby-identifier">close</span>
+                                        <span class="ruby-identifier">f</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span> <span class="ruby-identifier">fn</span>, <span class="ruby-identifier">attr</span>
+                                        
+                                        <span class="ruby-comment cmt"># ---- Update file</span>
+                                        <span class="ruby-keyword kw">yield</span> <span class="ruby-identifier">f</span>
+                                <span class="ruby-keyword kw">ensure</span>
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;unlock #{fnlock}&quot;</span>)
+                                        <span class="ruby-constant">File</span>.<span class="ruby-identifier">unlink</span> <span class="ruby-identifier">fnlock</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">fl</span>
+                                        <span class="ruby-identifier">f</span>.<span class="ruby-identifier">close</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">f</span>
+                                <span class="ruby-keyword kw">end</span>
+                        }
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

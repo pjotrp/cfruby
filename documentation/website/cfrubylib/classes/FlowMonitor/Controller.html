@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: FlowMonitor::Controller</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">FlowMonitor::Controller</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/flowmonitor_rb.html">
+                flowmonitor.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/flowmonitor.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+The <a href="Controller.html">Controller</a> class provides an
+encapsulation and message passing mechanism that can be used to add
+fine-grained flow control and logging facilities to a library. For general
+use a library defines one or more <a href="Controller.html">Controller</a>
+objects that calling programs <a
+href="Controller.html#M000257">register</a> <a
+href="Observer.html">Observer</a> (interface) objects to. The observers are
+called in order of registration and are told, via <a
+href="Message.html">Message</a> objects, what the library intends to do at
+a given point, as well as given a chance to override the action.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000260">attempt</a>&nbsp;&nbsp;
+      <a href="#M000261">attempt_abort</a>&nbsp;&nbsp;
+      <a href="#M000264">build_message</a>&nbsp;&nbsp;
+      <a href="#M000263">exception</a>&nbsp;&nbsp;
+      <a href="#M000262">inform</a>&nbsp;&nbsp;
+      <a href="#M000256">new</a>&nbsp;&nbsp;
+      <a href="#M000257">register</a>&nbsp;&nbsp;
+      <a href="#M000265">send_message</a>&nbsp;&nbsp;
+      <a href="#M000258">unregister</a>&nbsp;&nbsp;
+      <a href="#M000259">unregister_all</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000256" class="method-detail">
+        <a name="M000256"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000256.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000256.html');return false;">
+          <span class="method-name">new</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000260" class="method-detail">
+        <a name="M000260"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000260.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000260.html');return false;">
+          <span class="method-name">attempt</span><span class="method-args">(intention, *tags) {|block| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+<a href="Controller.html#M000260">attempt</a> is called with an intention
+str, a list of tags, and a code block which, if run, would carry out the
+intention. The intention and the tags are bundled into a <a
+href="Message.html">Message</a> object and passed, in order, to any
+listening <a href="Observer.html">Observer</a> objects, which may then
+abort the block. If all the listening Observers allow, the block is run and
+is assumed successful unless an Exception is raised. Exceptions raised are
+first passed as a message to the <a href="Observer.html">Observer</a> and
+are then allowed to bubble up through their normal paths.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000261" class="method-detail">
+        <a name="M000261"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000261.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000261.html');return false;">
+          <span class="method-name">attempt_abort</span><span class="method-args">(reason=&quot;no reason given&quot;)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+helper method to make it easier to understand the <a
+href="Controller.html#M000260">attempt</a> flow control. Causes an <a
+href="Controller.html#M000260">attempt</a> to preemptively return with an
+optional message. May do unpredicatable and unpleasant things if called
+outside of an <tt><a href="Controller.html#M000260">attempt</a></tt> block.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000264" class="method-detail">
+        <a name="M000264"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000264.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000264.html');return false;">
+          <span class="method-name">build_message</span><span class="method-args">(type, message, *tags)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+builds a message object from the given components
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000263" class="method-detail">
+        <a name="M000263"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000263.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000263.html');return false;">
+          <span class="method-name">exception</span><span class="method-args">(message, *tags)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+A helper function to send an <a
+href="Controller.html#M000263">exception</a> message
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000262" class="method-detail">
+        <a name="M000262"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000262.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000262.html');return false;">
+          <span class="method-name">inform</span><span class="method-args">(level, message, *tags)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+A helper function to send a simple informative message with a named level
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000257" class="method-detail">
+        <a name="M000257"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000257.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000257.html');return false;">
+          <span class="method-name">register</span><span class="method-args">(observer)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+registers the observer with this <a href="Controller.html">Controller</a>.
+observer is expected to implement the <a href="Observer.html">Observer</a>
+interface.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000265" class="method-detail">
+        <a name="M000265"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000265.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000265.html');return false;">
+          <span class="method-name">send_message</span><span class="method-args">(message)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+sends a message to all the registered observers until one of them returns
+false or all of them have been sent. Returns false if any observer returns
+false or true if it sends the message to all of them without receiving a
+false in return.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000258" class="method-detail">
+        <a name="M000258"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000258.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000258.html');return false;">
+          <span class="method-name">unregister</span><span class="method-args">(observer)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Unregisters a listening observer
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000259" class="method-detail">
+        <a name="M000259"></a>
+
+        <div class="method-heading">
+          <a href="Controller.src/M000259.html" target="Code" class="method-signature"
+            onclick="popupCode('Controller.src/M000259.html');return false;">
+          <span class="method-name">unregister_all</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Clears all listening observers
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

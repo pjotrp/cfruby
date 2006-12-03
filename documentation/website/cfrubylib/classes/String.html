@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: String</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">String</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../files/cfrubyscript_rb.html">
+                cfrubyscript.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/cfrubyscript.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+Including cfrubyscript adds a number of new helper methods to <a
+href="String.html">String</a> that are useful in cutting down the verbosity
+of system administration scripts.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000019">chmod</a>&nbsp;&nbsp;
+      <a href="#M000018">chown</a>&nbsp;&nbsp;
+      <a href="#M000017">chown_mod</a>&nbsp;&nbsp;
+      <a href="#M000013">exec</a>&nbsp;&nbsp;
+      <a href="#M000021">exist?</a>&nbsp;&nbsp;
+      <a href="#M000022">exists?</a>&nbsp;&nbsp;
+      <a href="#M000023">fileempty?</a>&nbsp;&nbsp;
+      <a href="#M000011">install</a>&nbsp;&nbsp;
+      <a href="#M000020">mkdir</a>&nbsp;&nbsp;
+      <a href="#M000015">must_contain</a>&nbsp;&nbsp;
+      <a href="#M000016">must_not_contain</a>&nbsp;&nbsp;
+      <a href="#M000014">set</a>&nbsp;&nbsp;
+      <a href="#M000012">uninstall</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000019" class="method-detail">
+        <a name="M000019"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000019.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000019.html');return false;">
+          <span class="method-name">chmod</span><span class="method-args">(mode, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::FileOps.chmod on the file named in the <a
+href="String.html">String</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000018" class="method-detail">
+        <a name="M000018"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000018.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000018.html');return false;">
+          <span class="method-name">chown</span><span class="method-args">(owner = Process::Sys.geteuid(), group = Process::Sys.getegid(), options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::FileOps.chown on the file named in the <a
+href="String.html">String</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000017" class="method-detail">
+        <a name="M000017"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000017.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000017.html');return false;">
+          <span class="method-name">chown_mod</span><span class="method-args">(owner, group, mode, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::FileOps.chown_mod on the file named in the <a
+href="String.html">String</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000013" class="method-detail">
+        <a name="M000013"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000013.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000013.html');return false;">
+          <span class="method-name">exec</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::Exec.exec on the <a href="String.html">String</a>, allowing
+for:
+</p>
+<pre>
+     '/usr/local/bin/myprogram'.exec()
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000021" class="method-detail">
+        <a name="M000021"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000021.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000021.html');return false;">
+          <span class="method-name">exist?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+returns true if the file named in the <a href="String.html">String</a>
+exists
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000022" class="method-detail">
+        <a name="M000022"></a>
+
+        <div class="method-heading">
+          <span class="method-name">exists?</span><span class="method-args">()</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for exist?
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000023" class="method-detail">
+        <a name="M000023"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000023.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000023.html');return false;">
+          <span class="method-name">fileempty?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+returns true if the file named in the <a href="String.html">String</a> is
+empty (as defined in Cfruby::FileFind.find() when passed the option :empty
+=&gt; true)
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000011" class="method-detail">
+        <a name="M000011"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000011.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000011.html');return false;">
+          <span class="method-name">install</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::Packages::PackageManager.install() on the <a
+href="String.html">String</a>, allowing for:
+</p>
+<pre>
+     'apache'.install()
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000020" class="method-detail">
+        <a name="M000020"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000020.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000020.html');return false;">
+          <span class="method-name">mkdir</span><span class="method-args">(options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::FileOps.mkdir on the file named in the <a
+href="String.html">String</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000015" class="method-detail">
+        <a name="M000015"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000015.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000015.html');return false;">
+          <span class="method-name">must_contain</span><span class="method-args">(str, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::FileEdit.file_must_contain on the file named in the <a
+href="String.html">String</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000016" class="method-detail">
+        <a name="M000016"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000016.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000016.html');return false;">
+          <span class="method-name">must_not_contain</span><span class="method-args">(str, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::FileEdit.file_must_not_contain on the file named in the <a
+href="String.html">String</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000014" class="method-detail">
+        <a name="M000014"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000014.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000014.html');return false;">
+          <span class="method-name">set</span><span class="method-args">(variable, value, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::FileEdit.set on the file named in the <a
+href="String.html">String</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000012" class="method-detail">
+        <a name="M000012"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000012.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000012.html');return false;">
+          <span class="method-name">uninstall</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Calls Cfruby::Packages::PackageManager.uninstall() on the <a
+href="String.html">String</a>, allowing for:
+</p>
+<pre>
+     'apache'.uninstall()
+</pre>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

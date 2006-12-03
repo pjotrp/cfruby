@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>replace (Cfruby::FileEdit)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileedit.rb, line 348</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileEdit</span>.<span class="ruby-identifier">replace</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">regex</span>, <span class="ruby-identifier">str</span>, <span class="ruby-identifier">options</span>={})
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:fuzzymatch</span>] <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:fuzzymatch</span>] = <span class="ruby-keyword kw">true</span>
+                        <span class="ruby-keyword kw">end</span>
+
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:alwaysadd</span>] <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:alwaysadd</span>] = <span class="ruby-keyword kw">true</span>
+                        <span class="ruby-keyword kw">end</span>
+                        
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">str</span> <span class="ruby-operator">!~</span> <span class="ruby-regexp re">/\n$/</span>)
+                                <span class="ruby-identifier">str</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;\n&quot;</span>
+                        <span class="ruby-keyword kw">end</span>
+                        
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">regex</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Array</span>))
+                                <span class="ruby-identifier">regex</span> = <span class="ruby-constant">Array</span>.[](<span class="ruby-identifier">regex</span>)
+                        <span class="ruby-keyword kw">end</span>
+                        
+                        <span class="ruby-identifier">regex</span>.<span class="ruby-identifier">each_index</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">regex</span>[<span class="ruby-identifier">i</span>].<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Regexp</span>))
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:fuzzymatch</span>])
+                                                <span class="ruby-identifier">regex</span>[<span class="ruby-identifier">i</span>] = <span class="ruby-identifier">convert_to_fuzzy_regex</span>(<span class="ruby-identifier">regex</span>[<span class="ruby-identifier">i</span>], <span class="ruby-identifier">:partialstr</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword kw">true</span>)
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-identifier">regex</span>[<span class="ruby-identifier">i</span>] = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">escape</span>(<span class="ruby-identifier">regex</span>[<span class="ruby-identifier">i</span>]))
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+                        }
+                        
+                        <span class="ruby-identifier">replaced</span> = <span class="ruby-keyword kw">false</span>
+                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;Replacing #{regex[0].source}... with #{str} in \&quot;#{filename}\&quot;&quot;</span>, <span class="ruby-value str">'destructive'</span>, <span class="ruby-value str">'nonreversible'</span>) {
+                                <span class="ruby-identifier">lines</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">RDONLY</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">fp</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">fp</span>.<span class="ruby-identifier">each_line</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-identifier">regex</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span>
+                                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">r</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">line</span>))
+                                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">replaced</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:firstonly</span>])
+                                                                        <span class="ruby-keyword kw">next</span>
+                                                                <span class="ruby-keyword kw">else</span>
+                                                                        <span class="ruby-identifier">line</span> = <span class="ruby-identifier">str</span>
+                                                                        <span class="ruby-identifier">replaced</span> = <span class="ruby-keyword kw">true</span>
+                                                                <span class="ruby-keyword kw">end</span>
+                                                        <span class="ruby-keyword kw">end</span>
+                                                }
+                                                <span class="ruby-identifier">lines</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">line</span>
+                                        }
+                                }
+                        
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">replaced</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:alwaysadd</span>])
+                                        <span class="ruby-identifier">file_must_contain</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">str</span>, <span class="ruby-identifier">options</span>)
+                                        <span class="ruby-identifier">replaced</span> = <span class="ruby-keyword kw">true</span>
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">replaced</span>)
+                                        <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">write_file</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">lines</span>)
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">changed</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">true</span>)
+                                                <span class="ruby-identifier">replaced</span> = <span class="ruby-keyword kw">false</span>
+                                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-value str">&quot;unchanged&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-identifier">replaced</span> = <span class="ruby-keyword kw">false</span>
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-value str">&quot;unchanged&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+                        }
+                        
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">replaced</span>)
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">true</span>)
+                        <span class="ruby-keyword kw">else</span>
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">false</span>)
+                        <span class="ruby-keyword kw">end</span>
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

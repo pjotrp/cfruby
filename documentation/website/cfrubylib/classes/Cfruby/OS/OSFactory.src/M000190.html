@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>set_with_RUBY_PLATFORM (Cfruby::OS::OSFactory)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File os.rb, line 69</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">set_with_RUBY_PLATFORM</span>()
+                                <span class="ruby-comment cmt"># try to use RUBY_PLATFORM to get the OS type</span>
+                                <span class="ruby-comment cmt"># Darwin</span>
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;Platform reported by Ruby interpreter: #{RUBY_PLATFORM}&quot;</span>)
+                                <span class="ruby-keyword kw">case</span>
+                                        <span class="ruby-keyword kw">when</span>(<span class="ruby-constant">RUBY_PLATFORM</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/darwin/i</span>)
+                                                <span class="ruby-keyword kw">return</span>(<span class="ruby-constant">OSXOS</span>.<span class="ruby-identifier">new</span>())
+                                        <span class="ruby-keyword kw">when</span>(<span class="ruby-constant">RUBY_PLATFORM</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/freebsd/i</span>)
+                                                <span class="ruby-keyword kw">return</span>(<span class="ruby-constant">FreeBSDOS</span>.<span class="ruby-identifier">new</span>())
+                                        <span class="ruby-keyword kw">when</span>(<span class="ruby-constant">RUBY_PLATFORM</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/openbsd/i</span>)
+                                                <span class="ruby-keyword kw">return</span>(<span class="ruby-constant">OpenBSDOS</span>.<span class="ruby-identifier">new</span>())
+                                        <span class="ruby-keyword kw">when</span>(<span class="ruby-constant">RUBY_PLATFORM</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/linux/i</span>)
+                                                <span class="ruby-keyword kw">return</span>(<span class="ruby-constant">Linux</span>.<span class="ruby-identifier">new</span>())
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-value str">&quot;Unknown platform (by RUBY_PLATFORM)&quot;</span>)
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">nil</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

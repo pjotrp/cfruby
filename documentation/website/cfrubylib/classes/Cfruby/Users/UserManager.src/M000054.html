@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>set_password (Cfruby::Users::UserManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File users.rb, line 263</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">set_password</span>(<span class="ruby-identifier">user</span>, <span class="ruby-identifier">newpassword</span>)
+                                <span class="ruby-comment cmt"># We are going to do this with an expect script instead of in pure ruby...</span>
+                                <span class="ruby-comment cmt"># partly because doing it in pure ruby turns out to be pretty tricky since</span>
+                                <span class="ruby-comment cmt"># ruby doesn't have very good tools for interacting with shell programs, but</span>
+                                <span class="ruby-comment cmt"># also because Expect does, and we like doing things with the right tool</span>
+                                
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;Changing password for \&quot;#{user}\&quot;&quot;</span>, <span class="ruby-value str">'destructive'</span>) {
+                                        <span class="ruby-comment cmt"># we must be running as root</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-constant">Process</span>.<span class="ruby-identifier">euid</span>() <span class="ruby-operator">!=</span> <span class="ruby-value">0</span>)
+                                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ChangePasswordError</span>, <span class="ruby-value str">&quot;Passwords can only be set by root&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                
+                                        <span class="ruby-comment cmt"># first check for the existence of expect</span>
+                                        <span class="ruby-identifier">haveexpect</span> = <span class="ruby-value">`/usr/bin/env expect -v`</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">haveexpect</span> <span class="ruby-operator">!~</span> <span class="ruby-regexp re">/expect version/i</span>)
+                                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ChangePasswordError</span>, <span class="ruby-value str">&quot;Expect binary could not be found&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                
+                                        <span class="ruby-comment cmt"># create a specialized expect script to change the password</span>
+                                        <span class="ruby-comment cmt"># and run it</span>
+                                        <span class="ruby-identifier">changepass</span> = <span class="ruby-value str">&quot;#!/usr/bin/env expect\n\nspawn passwd \#{Cfruby::Exec.shellescape(user)}\nset password \&quot;\#{newpassword.gsub(/(\&quot;)/, \&quot;\\\\\\1\&quot;)}\&quot;\nexpect \&quot;New password:\&quot;\nsend \&quot;$password\\\\r\&quot;\nexpect \&quot;password:\&quot;\nsend \&quot;$password\\\\r\&quot;\nexpect eof\n&quot;</span>
+
+                                        <span class="ruby-identifier">scriptfile</span> = <span class="ruby-constant">Tempfile</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">'cfruby'</span>)
+                                        <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">chmod</span>(<span class="ruby-identifier">scriptfile</span>.<span class="ruby-identifier">path</span>, <span class="ruby-value str">&quot;u+x,go-rwx&quot;</span>)
+                                        <span class="ruby-identifier">scriptfile</span>.<span class="ruby-identifier">print</span>(<span class="ruby-identifier">changepass</span>)
+                                        <span class="ruby-identifier">scriptfile</span>.<span class="ruby-identifier">close</span>(<span class="ruby-keyword kw">false</span>)
+                                        <span class="ruby-node">`cp #{scriptfile.path} ./footest`</span>
+                                        <span class="ruby-identifier">output</span> = <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">Exec</span>.<span class="ruby-identifier">exec</span>(<span class="ruby-identifier">scriptfile</span>.<span class="ruby-identifier">path</span>)
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

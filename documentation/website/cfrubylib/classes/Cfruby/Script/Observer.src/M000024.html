@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Cfruby::Script::Observer)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File cfrubyscript.rb, line 214</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">level</span>)
+                                
+                                <span class="ruby-ivar">@levelmap</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-ivar">@levelmap</span>[<span class="ruby-value str">'intention'</span>] = <span class="ruby-value">4</span>
+                                <span class="ruby-ivar">@levelmap</span>[<span class="ruby-value str">'debug'</span>] = <span class="ruby-value">4</span>
+                                <span class="ruby-ivar">@levelmap</span>[<span class="ruby-value str">'verbose'</span>] = <span class="ruby-value">3</span>
+                                <span class="ruby-ivar">@levelmap</span>[<span class="ruby-value str">'info'</span>] = <span class="ruby-value">2</span>
+                                <span class="ruby-ivar">@levelmap</span>[<span class="ruby-value str">'warn'</span>] = <span class="ruby-value">1</span>
+                                <span class="ruby-ivar">@levelmap</span>[<span class="ruby-value str">'error'</span>] = <span class="ruby-value">0</span>
+                                <span class="ruby-ivar">@levelmap</span>[<span class="ruby-value str">'fatal'</span>] = <span class="ruby-value">0</span>
+                                
+                                <span class="ruby-ivar">@reverselevelmap</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-ivar">@reverselevelmap</span>[<span class="ruby-value">4</span>] = <span class="ruby-value str">'debug'</span>
+                                <span class="ruby-ivar">@reverselevelmap</span>[<span class="ruby-value">3</span>] = <span class="ruby-value str">'verbose'</span>
+                                <span class="ruby-ivar">@reverselevelmap</span>[<span class="ruby-value">2</span>] = <span class="ruby-value str">'info'</span>
+                                
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">level</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Numeric</span>))
+                                        <span class="ruby-identifier">level</span> = <span class="ruby-identifier">level</span>.<span class="ruby-identifier">to_i</span>()
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">level</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">level</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">4</span>)
+                                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ArgumentError</span>, <span class="ruby-value str">&quot;log level must be between 0 and 4&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-keyword kw">case</span>(<span class="ruby-identifier">level</span>)
+                                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'debug'</span>)
+                                                        <span class="ruby-identifier">level</span> = <span class="ruby-value">4</span>
+                                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'verbose'</span>)
+                                                        <span class="ruby-identifier">level</span> = <span class="ruby-value">3</span>
+                                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'info'</span>)
+                                                        <span class="ruby-identifier">level</span> = <span class="ruby-value">2</span>
+                                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'warn'</span>)
+                                                        <span class="ruby-identifier">level</span> = <span class="ruby-value">1</span>
+                                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'error'</span>)
+                                                        <span class="ruby-identifier">level</span> = <span class="ruby-value">0</span>
+                                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'fatal'</span>)
+                                                        <span class="ruby-identifier">level</span> = <span class="ruby-value">0</span>
+                                                <span class="ruby-keyword kw">else</span>
+                                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;Unknown log level \&quot;#{level}\&quot;&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-ivar">@level</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-ivar">@level</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">'exception'</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">level</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>)
+                                        <span class="ruby-ivar">@level</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">'warn'</span>
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">level</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">1</span>)
+                                        <span class="ruby-ivar">@level</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">'info'</span>
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">level</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">2</span>)
+                                        <span class="ruby-ivar">@level</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">'verbose'</span>
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">level</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">3</span>)
+                                        <span class="ruby-ivar">@level</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">'debug'</span>
+                                        <span class="ruby-ivar">@level</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">'intention'</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">filename</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                        <span class="ruby-ivar">@logger</span> = <span class="ruby-constant">Logger</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">STDOUT</span>)
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-ivar">@logger</span> = <span class="ruby-constant">Logger</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-value">5</span>, <span class="ruby-value">1048576</span>)
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-ivar">@errlogger</span> = <span class="ruby-constant">Logger</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">STDERR</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

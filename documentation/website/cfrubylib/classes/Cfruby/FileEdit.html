@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Cfruby::FileEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Cfruby::FileEdit</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/fileedit_rb.html">
+                fileedit.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/fileedit.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+Methods for line-based editing of files. Generally geared towards editing
+configuration files on POSIX-based systems.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000242">comment</a>&nbsp;&nbsp;
+      <a href="#M000235">contains?</a>&nbsp;&nbsp;
+      <a href="#M000247">convert_to_fuzzy_regex</a>&nbsp;&nbsp;
+      <a href="#M000238">file_append</a>&nbsp;&nbsp;
+      <a href="#M000236">file_must_contain</a>&nbsp;&nbsp;
+      <a href="#M000237">file_must_not_contain</a>&nbsp;&nbsp;
+      <a href="#M000239">file_prepend</a>&nbsp;&nbsp;
+      <a href="#M000245">open</a>&nbsp;&nbsp;
+      <a href="#M000241">replace</a>&nbsp;&nbsp;
+      <a href="#M000244">set</a>&nbsp;&nbsp;
+      <a href="#M000240">set_contents</a>&nbsp;&nbsp;
+      <a href="#M000243">uncomment</a>&nbsp;&nbsp;
+      <a href="#M000246">write_file</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Class <a href="FileEdit/AnchorNotFoundError.html" class="link">Cfruby::FileEdit::AnchorNotFoundError</a><br />
+Class <a href="FileEdit/FileEditError.html" class="link">Cfruby::FileEdit::FileEditError</a><br />
+
+    </div>
+
+    <div id="constants-list">
+      <h3 class="section-bar">Constants</h3>
+
+      <div class="name-list">
+        <table summary="Constants">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">APPEND</td>
+          <td>=</td>
+          <td class="context-item-value">&quot;append&quot;</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">PREPEND</td>
+          <td>=</td>
+          <td class="context-item-value">&quot;prepend&quot;</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000242" class="method-detail">
+        <a name="M000242"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000242.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000242.html');return false;">
+          <span class="method-name">comment</span><span class="method-args">(filename, regex, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Comments out lines that match <tt>regex</tt>, which may also be given as a
+string Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:commentwith</tt>:</td><td>(defaults to &#8217;#&#8217;) Use this at the front of the line to <a
+href="FileEdit.html#M000242">comment</a> the line
+
+</td></tr>
+<tr><td valign="top"><tt>:fuzzymatch</tt>:</td><td>(defaults to true) If regex is given as a <a
+href="../String.html">String</a>, ignore whitespace
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000235" class="method-detail">
+        <a name="M000235"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000235.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000235.html');return false;">
+          <span class="method-name">contains?</span><span class="method-args">(filename, pattern)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns true if the given <tt>pattern</tt> (str or regular expression) is
+found in <tt>filename</tt>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000238" class="method-detail">
+        <a name="M000238"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000238.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000238.html');return false;">
+          <span class="method-name">file_append</span><span class="method-args">(filename, str)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Appends <tt>str</tt> to the end of <tt>filename</tt>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000236" class="method-detail">
+        <a name="M000236"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000236.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000236.html');return false;">
+          <span class="method-name">file_must_contain</span><span class="method-args">(filename, str, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Ensures that filename contains str. If str is a single line, that line will
+be searched for. If str contains multiple lines then, by default, it will
+be split on /\n/ and each line will be checked/added in turn. If :block
+=&gt; true is passed in then the first line of a multiline block will be
+searched for (or :regex if it is given), and the entire block will be added
+if it is not found. If str contains an array then <a
+href="FileEdit.html#M000236">file_must_contain</a> will be called on each
+item in order. Returns true if str (or any substr) was added, false if it
+was not (meaning everything passed was already in the file). Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:position</tt>:</td><td>may be FileEdit::APPEND or FileEdit::PREPEND (or &#8216;append&#8217; or
+&#8216;prepend&#8217;). Defaults to FileEdit::APPEND
+
+</td></tr>
+<tr><td valign="top"><tt>:anchor</tt>:</td><td>may be nil, a line number, or a regular expression. Used to determine where
+to append or prepend
+
+</td></tr>
+<tr><td valign="top"><tt>:fuzzymatch</tt>:</td><td>defaults to true - causes whitespace in str to be largely ignored for
+purposes of matching.
+
+</td></tr>
+<tr><td valign="top"><tt>:regex</tt>:</td><td>if given, then str will be added if regex matches no lines in the file
+
+</td></tr>
+<tr><td valign="top"><tt>:block</tt>:</td><td>defaults to false - determines whether multiline str&#8216;s will be
+treated as a single block
+
+</td></tr>
+<tr><td valign="top"><tt>:allwaysadd</tt>:</td><td>If true str will be added even if the given anchor cannot be found.
+Defaults to false.
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000237" class="method-detail">
+        <a name="M000237"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000237.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000237.html');return false;">
+          <span class="method-name">file_must_not_contain</span><span class="method-args">(filename, pattern, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Ensures that <tt>filename</tt> does not contain lines matching
+<tt>pattern</tt>. Pattern may be a <a href="../String.html">String</a>,
+Regexp, or an <a href="../Array.html">Array</a> of either. Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:fuzzymatch</tt>:</td><td>defaults to true - causes whitespace in pattern (if passed as a <a
+href="../String.html">String</a>) to be largely ignored for purposes of
+matching.
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000239" class="method-detail">
+        <a name="M000239"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000239.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000239.html');return false;">
+          <span class="method-name">file_prepend</span><span class="method-args">(filename, str)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Prepends <tt>str</tt> to <tt>filename</tt>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000245" class="method-detail">
+        <a name="M000245"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000245.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000245.html');return false;">
+          <span class="method-name">open</span><span class="method-args">(filename, mode) {|fp| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Handles atomic editing by creating a temporary copy of <tt>filename</tt>
+and only writing it back if an actual change has been made. Yields a File
+object.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000241" class="method-detail">
+        <a name="M000241"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000241.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000241.html');return false;">
+          <span class="method-name">replace</span><span class="method-args">(filename, regex, str, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Replaces all lines matching <tt>regex</tt> with <tt>str</tt>. Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:firstonly</tt>:</td><td>if true then the first match is replaced and all other matching lines are
+removed from the file.
+
+</td></tr>
+<tr><td valign="top"><tt>:fuzzymatch</tt>:</td><td>(defaults to true) causes <a href="../String.html">String</a> whitespace to
+be ignored for matching purposes
+
+</td></tr>
+<tr><td valign="top"><tt>:alwaysadd</tt>:</td><td>(defaults to true) then the line will be added (by calling <a
+href="FileEdit.html#M000236">file_must_contain</a> and passing
+
+</td></tr>
+</table>
+<p>
+through options) to the end of the file even if no lines match
+<tt>regex</tt>.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000244" class="method-detail">
+        <a name="M000244"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000244.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000244.html');return false;">
+          <span class="method-name">set</span><span class="method-args">(filename, variable, value, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Sets <tt>variable</tt> to <tt>value</tt> in <tt>filename</tt> (as in
+hostname = &quot;my.hostname.com&quot;). Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:delimiter</tt>:</td><td>(&#8217;=&#8217; by default) determines what delimiter to place between
+<tt>variable</tt> and <tt>value</tt>
+
+</td></tr>
+<tr><td valign="top"><tt>:whitespace</tt>:</td><td>(overrides delimiter) uses a special whitespace matching delimiter if true
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000240" class="method-detail">
+        <a name="M000240"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000240.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000240.html');return false;">
+          <span class="method-name">set_contents</span><span class="method-args">(filename, remove, add, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Atomically sets the contents of <tt>filename</tt> by first removing all
+lines in <tt>remove</tt> and then adding all lines in <tt>add</tt> using <a
+href="FileEdit.html#M000237">file_must_not_contain</a> and <a
+href="FileEdit.html#M000236">file_must_contain</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000243" class="method-detail">
+        <a name="M000243"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000243.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000243.html');return false;">
+          <span class="method-name">uncomment</span><span class="method-args">(filename, regex, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Uncomments lines that match <tt>regex</tt>, which may also be given as a
+string Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:commentwith</tt>:</td><td>(defaults to &#8217;#&#8217;) Remove this from the front of the line to <a
+href="FileEdit.html#M000243">uncomment</a> the line
+
+</td></tr>
+<tr><td valign="top"><tt>:fuzzymatch</tt>:</td><td>(defaults to true) If regex is given as a <a
+href="../String.html">String</a>, ignore whitespace
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Private Class methods</h3>
+
+      <div id="method-M000247" class="method-detail">
+        <a name="M000247"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000247.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000247.html');return false;">
+          <span class="method-name">convert_to_fuzzy_regex</span><span class="method-args">(str, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+turns a string into a fuzzy match string
+</p>
+<table>
+<tr><td valign="top"><tt>:partialstr</tt>:</td><td>if true, the string is assumed to be part of an entire line rather than a
+whole line on its own
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000246" class="method-detail">
+        <a name="M000246"></a>
+
+        <div class="method-heading">
+          <a href="FileEdit.src/M000246.html" target="Code" class="method-signature"
+            onclick="popupCode('FileEdit.src/M000246.html');return false;">
+          <span class="method-name">write_file</span><span class="method-args">(filename, lines)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

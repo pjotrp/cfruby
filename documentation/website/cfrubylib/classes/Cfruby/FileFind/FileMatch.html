@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Cfruby::FileFind::FileMatch</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Cfruby::FileFind::FileMatch</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/filefind_rb.html">
+                filefind.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/filefind.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+The <a href="FileMatch.html">FileMatch</a> class implements a <a
+href="FileMatch.html#M000117">matches?</a> method which is called on each
+file in turn during a directory traversal. The class encapsulates the logic
+necessary to determine which files should be included in Find output and
+which should not.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000126">brokenlink</a>&nbsp;&nbsp;
+      <a href="#M000118">convertsize</a>&nbsp;&nbsp;
+      <a href="#M000119">directoriesonly</a>&nbsp;&nbsp;
+      <a href="#M000125">empty</a>&nbsp;&nbsp;
+      <a href="#M000120">filesonly</a>&nbsp;&nbsp;
+      <a href="#M000124">largerthan</a>&nbsp;&nbsp;
+      <a href="#M000117">matches?</a>&nbsp;&nbsp;
+      <a href="#M000116">new</a>&nbsp;&nbsp;
+      <a href="#M000122">newerthan</a>&nbsp;&nbsp;
+      <a href="#M000121">olderthan</a>&nbsp;&nbsp;
+      <a href="#M000123">smallerthan</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000116" class="method-detail">
+        <a name="M000116"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000116.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000116.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:glob</tt>:</td><td>can be a standard file glob (*.txt) or a regular expression or an array of
+either
+
+</td></tr>
+<tr><td valign="top"><tt>:<a href="FileMatch.html#M000119">directoriesonly</a></tt>:</td><td>set to true will cause only directories to be matched
+
+</td></tr>
+<tr><td valign="top"><tt>:<a href="FileMatch.html#M000120">filesonly</a></tt>:</td><td>set to true will cause only files to be matched
+
+</td></tr>
+<tr><td valign="top"><tt>:exclude</tt>:</td><td>exclude any files matching the given pattern or patterns (may be standard
+file globs or regular expressions)
+
+</td></tr>
+<tr><td valign="top"><tt>:include</tt>:</td><td>overrides excluded files selectively
+
+</td></tr>
+<tr><td valign="top"><tt>:<a href="FileMatch.html#M000122">newerthan</a></tt>:</td><td>only files younger than this
+
+</td></tr>
+<tr><td valign="top"><tt>:<a href="FileMatch.html#M000121">olderthan</a></tt>:</td><td>only files older than this
+
+</td></tr>
+<tr><td valign="top"><tt>:<a href="FileMatch.html#M000125">empty</a></tt>:</td><td>true if the file is 0 length or the directory is <a
+href="FileMatch.html#M000125">empty</a> or a symlink is broken
+
+</td></tr>
+<tr><td valign="top"><tt>:<a href="FileMatch.html#M000126">brokenlink</a></tt>:</td><td>true if a symlink is broken
+
+</td></tr>
+<tr><td valign="top"><tt>:<a href="FileMatch.html#M000124">largerthan</a></tt>:</td><td>only files larger than this (bytes, or /([0-9]+)(kmg)b?/)
+
+</td></tr>
+<tr><td valign="top"><tt>:<a href="FileMatch.html#M000123">smallerthan</a></tt>:</td><td>only files smaller than this (bytes, or /([0-9]+)(kmg)b?/)
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000117" class="method-detail">
+        <a name="M000117"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000117.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000117.html');return false;">
+          <span class="method-name">matches?</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Private Instance methods</h3>
+
+      <div id="method-M000126" class="method-detail">
+        <a name="M000126"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000126.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000126.html');return false;">
+          <span class="method-name">brokenlink</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000118" class="method-detail">
+        <a name="M000118"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000118.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000118.html');return false;">
+          <span class="method-name">convertsize</span><span class="method-args">(str)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+converts a str size into an Integer size in bytes
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000119" class="method-detail">
+        <a name="M000119"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000119.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000119.html');return false;">
+          <span class="method-name">directoriesonly</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000125" class="method-detail">
+        <a name="M000125"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000125.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000125.html');return false;">
+          <span class="method-name">empty</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000120" class="method-detail">
+        <a name="M000120"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000120.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000120.html');return false;">
+          <span class="method-name">filesonly</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000124" class="method-detail">
+        <a name="M000124"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000124.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000124.html');return false;">
+          <span class="method-name">largerthan</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000122" class="method-detail">
+        <a name="M000122"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000122.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000122.html');return false;">
+          <span class="method-name">newerthan</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000121" class="method-detail">
+        <a name="M000121"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000121.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000121.html');return false;">
+          <span class="method-name">olderthan</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000123" class="method-detail">
+        <a name="M000123"></a>
+
+        <div class="method-heading">
+          <a href="FileMatch.src/M000123.html" target="Code" class="method-signature"
+            onclick="popupCode('FileMatch.src/M000123.html');return false;">
+          <span class="method-name">smallerthan</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

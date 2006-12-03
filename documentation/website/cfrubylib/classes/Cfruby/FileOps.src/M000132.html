@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>mkdir (Cfruby::FileOps)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileops.rb, line 364</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">mkdir</span>(<span class="ruby-identifier">dirname</span>, <span class="ruby-identifier">options</span> = {})
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">dirname</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">String</span>))
+                                <span class="ruby-identifier">dirname</span> = <span class="ruby-constant">Array</span>.[](<span class="ruby-identifier">dirname</span>)
+                        <span class="ruby-keyword kw">end</span>
+
+        <span class="ruby-identifier">created</span> = <span class="ruby-keyword kw">false</span>
+
+                        <span class="ruby-identifier">dirname</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">d</span><span class="ruby-operator">|</span>
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;mkdir #{d}&quot;</span>, <span class="ruby-value str">'destructive'</span>) {
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">d</span>))
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:makeparent</span>])
+                                                        <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">d</span>)
+                                                <span class="ruby-keyword kw">else</span>
+                                                        <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir</span>(<span class="ruby-identifier">d</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                          <span class="ruby-identifier">created</span> = <span class="ruby-keyword kw">true</span>
+                                                <span class="ruby-identifier">mode</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:mode</span>]
+                                                <span class="ruby-identifier">user</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:user</span>] <span class="ruby-keyword kw">or</span> <span class="ruby-constant">Process</span>.<span class="ruby-identifier">euid</span>()
+                                                <span class="ruby-identifier">group</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:group</span>] <span class="ruby-keyword kw">or</span> <span class="ruby-constant">Process</span>.<span class="ruby-identifier">egid</span>()
+                                                <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">chown</span>(<span class="ruby-identifier">d</span>,<span class="ruby-identifier">user</span>,<span class="ruby-identifier">group</span>,<span class="ruby-identifier">options</span>)
+                                                <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">chmod</span>(<span class="ruby-identifier">d</span>,<span class="ruby-identifier">mode</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">mode</span>
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-node">&quot;#{d} already exists&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                        }
+                        
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">created</span>)
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

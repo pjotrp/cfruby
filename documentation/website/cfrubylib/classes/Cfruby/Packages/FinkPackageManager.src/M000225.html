@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>installed_packages (Cfruby::Packages::FinkPackageManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/osx.rb, line 300</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">installed_packages</span>()
+                                <span class="ruby-identifier">installedpackagelist</span> = <span class="ruby-node">`#{@finkbin} list -i`</span>
+
+                                <span class="ruby-identifier">installedpackages</span> = <span class="ruby-constant">PackageList</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-identifier">installedpackagelist</span>.<span class="ruby-identifier">each_line</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">linearr</span> = <span class="ruby-identifier">line</span>.<span class="ruby-identifier">split</span>()
+                                        <span class="ruby-identifier">installedpackages</span>[<span class="ruby-identifier">linearr</span>[<span class="ruby-value">1</span>]] = <span class="ruby-constant">PackageInfo</span>.<span class="ruby-identifier">new</span>()
+                                        <span class="ruby-identifier">installedpackages</span>[<span class="ruby-identifier">linearr</span>[<span class="ruby-value">1</span>]].<span class="ruby-identifier">name</span> = <span class="ruby-identifier">linearr</span>[<span class="ruby-value">1</span>]
+                                        <span class="ruby-identifier">installedpackages</span>[<span class="ruby-identifier">linearr</span>[<span class="ruby-value">1</span>]].<span class="ruby-identifier">version</span> = <span class="ruby-identifier">linearr</span>[<span class="ruby-value">2</span>]
+                                        <span class="ruby-identifier">installedpackages</span>[<span class="ruby-identifier">linearr</span>[<span class="ruby-value">1</span>]].<span class="ruby-identifier">description</span> = <span class="ruby-identifier">linearr</span>[<span class="ruby-value">3</span>]
+                                        <span class="ruby-identifier">installedpackages</span>[<span class="ruby-identifier">linearr</span>[<span class="ruby-value">1</span>]].<span class="ruby-identifier">installed</span> = <span class="ruby-keyword kw">true</span>
+                                }
+
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">installedpackages</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

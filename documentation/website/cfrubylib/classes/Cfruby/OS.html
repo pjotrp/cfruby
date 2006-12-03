@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Cfruby::OS</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Cfruby::OS</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/os_rb.html">
+                os.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/os.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+                <a href="../../files/osmodules/linux-generic_rb.html">
+                osmodules/linux-generic.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/osmodules/linux-generic.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+                <a href="../../files/osmodules/freebsd_rb.html">
+                osmodules/freebsd.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/osmodules/freebsd.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+                <a href="../../files/osmodules/osx_rb.html">
+                osmodules/osx.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/osmodules/osx.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+                <a href="../../files/osmodules/openbsd_rb.html">
+                osmodules/openbsd.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/osmodules/openbsd.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000159">get_os</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Class <a href="OS/FreeBSDOS.html" class="link">Cfruby::OS::FreeBSDOS</a><br />
+Class <a href="OS/Linux.html" class="link">Cfruby::OS::Linux</a><br />
+Class <a href="OS/OS.html" class="link">Cfruby::OS::OS</a><br />
+Class <a href="OS/OSError.html" class="link">Cfruby::OS::OSError</a><br />
+Class <a href="OS/OSFactory.html" class="link">Cfruby::OS::OSFactory</a><br />
+Class <a href="OS/OSFreeBSDJailError.html" class="link">Cfruby::OS::OSFreeBSDJailError</a><br />
+Class <a href="OS/OSUndetectableError.html" class="link">Cfruby::OS::OSUndetectableError</a><br />
+Class <a href="OS/OSXOS.html" class="link">Cfruby::OS::OSXOS</a><br />
+Class <a href="OS/OpenBSDOS.html" class="link">Cfruby::OS::OpenBSDOS</a><br />
+
+    </div>
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000159" class="method-detail">
+        <a name="M000159"></a>
+
+        <div class="method-heading">
+          <a href="OS.src/M000159.html" target="Code" class="method-signature"
+            onclick="popupCode('OS.src/M000159.html');return false;">
+          <span class="method-name">get_os</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Uses <a href="OS/OSFactory.html">OSFactory</a> to return an appropriate <a
+href="OS.html">OS</a> object
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

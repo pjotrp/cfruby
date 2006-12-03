@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>delete (Cfruby::FileOps)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileops.rb, line 624</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-identifier">basedir</span>, <span class="ruby-identifier">options</span> = {})
+                        <span class="ruby-identifier">deletedsomething</span> = <span class="ruby-keyword kw">false</span>
+                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;deleting files from \&quot;#{basedir}\&quot;&quot;</span>, <span class="ruby-value str">'nonreversible'</span>, <span class="ruby-value str">'destructive'</span>) {
+                                <span class="ruby-keyword kw">begin</span>
+                                        <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:returnorder</span>] = <span class="ruby-value str">'delete'</span>
+                                        <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">FileFind</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">basedir</span>, <span class="ruby-identifier">options</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">filename</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">filename</span>.<span class="ruby-identifier">symlink?</span>() <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">filename</span>.<span class="ruby-identifier">directory?</span>())
+                                                        <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">rmdir</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:force</span>])
+                                                <span class="ruby-keyword kw">else</span>
+                                                        <span class="ruby-constant">FileOps</span><span class="ruby-operator">::</span><span class="ruby-constant">SymlinkHandler</span>.<span class="ruby-identifier">unlink</span>(<span class="ruby-identifier">filename</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                                <span class="ruby-identifier">deletedsomething</span> = <span class="ruby-keyword kw">true</span>
+                                        }
+                                <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">FileFind</span><span class="ruby-operator">::</span><span class="ruby-constant">FileExistError</span>
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-node">&quot;#{basedir} does not exist&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+                        }
+                        
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">deletedsomething</span>)
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

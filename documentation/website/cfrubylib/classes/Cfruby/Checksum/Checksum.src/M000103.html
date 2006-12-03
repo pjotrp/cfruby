@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>get_checksums (Cfruby::Checksum::Checksum)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File checksum.rb, line 119</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-constant">Checksum</span>.<span class="ruby-identifier">get_checksums</span>(<span class="ruby-identifier">object</span>)
+                                <span class="ruby-identifier">checksums</span> = <span class="ruby-constant">ChecksumValues</span>.<span class="ruby-identifier">new</span>()
+                                
+                                <span class="ruby-identifier">md5digest</span> = <span class="ruby-constant">Digest</span><span class="ruby-operator">::</span><span class="ruby-constant">MD5</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-identifier">shadigest</span> = <span class="ruby-constant">Digest</span><span class="ruby-operator">::</span><span class="ruby-constant">SHA1</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-identifier">buffer</span> = <span class="ruby-constant">String</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-identifier">opened</span> = <span class="ruby-keyword kw">false</span>
+                                
+                                <span class="ruby-identifier">fp</span> = <span class="ruby-identifier">object</span>
+                                
+                                <span class="ruby-comment cmt"># handle Pathname objects as strings</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Pathname</span>))
+                                        <span class="ruby-identifier">object</span> = <span class="ruby-identifier">object</span>.<span class="ruby-identifier">realpath</span>.<span class="ruby-identifier">to_s</span>()
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">object</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:read</span>))
+                                        <span class="ruby-identifier">filename</span> = <span class="ruby-identifier">object</span>.<span class="ruby-identifier">to_s</span>()
+                                        <span class="ruby-identifier">fp</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">RDONLY</span>)
+                                        <span class="ruby-identifier">opened</span> = <span class="ruby-keyword kw">true</span>
+                                        <span class="ruby-identifier">stats</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-identifier">filename</span>)
+                                        <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-identifier">stats</span>.<span class="ruby-identifier">uid</span>
+                                        <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">gid</span> = <span class="ruby-identifier">stats</span>.<span class="ruby-identifier">gid</span>
+                                        <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">permissions</span> = <span class="ruby-identifier">stats</span>.<span class="ruby-identifier">mode</span>.<span class="ruby-identifier">to_s</span>(<span class="ruby-value">8</span>)
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-keyword kw">nil</span>
+                                        <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">gid</span> = <span class="ruby-keyword kw">nil</span>
+                                        <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">permissions</span> = <span class="ruby-keyword kw">nil</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-keyword kw">begin</span>
+                                        <span class="ruby-keyword kw">while</span>(<span class="ruby-identifier">fp</span>.<span class="ruby-identifier">read</span>(<span class="ruby-value">2048</span>, <span class="ruby-identifier">buffer</span>) <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-identifier">md5digest</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">buffer</span>
+                                                <span class="ruby-identifier">shadigest</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">buffer</span>
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">ensure</span>
+                                        <span class="ruby-comment cmt"># close it if we opened it</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">opened</span>)
+                                                <span class="ruby-identifier">fp</span>.<span class="ruby-identifier">close</span>()
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">md5</span> = <span class="ruby-identifier">md5digest</span>.<span class="ruby-identifier">hexdigest</span>()
+                                <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">sha1</span> = <span class="ruby-identifier">shadigest</span>.<span class="ruby-identifier">hexdigest</span>()
+                                <span class="ruby-identifier">checksums</span>.<span class="ruby-identifier">timestamp</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">now</span>()
+                                
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">checksums</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>users (Cfruby::Users::OpenBSDUserManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/openbsd.rb, line 163</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">users</span>()
+                                <span class="ruby-identifier">userlist</span> = <span class="ruby-constant">UserList</span>.<span class="ruby-identifier">new</span>()
+
+                                <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-value str">'/etc/passwd'</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">RDONLY</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">fp</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">regex</span> = <span class="ruby-regexp re">/^([a-zA-Z0-9-]+):[^:]+:([0-9]+):([0-9]+):([^:]*):([^:]*):([^:]*)$/</span>
+                                        <span class="ruby-identifier">fp</span>.<span class="ruby-identifier">each_line</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-identifier">match</span> = <span class="ruby-identifier">regex</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">line</span>)
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">match</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                        <span class="ruby-identifier">user</span> = <span class="ruby-constant">UserInfo</span>.<span class="ruby-identifier">new</span>()
+                                                        <span class="ruby-identifier">user</span>.<span class="ruby-identifier">username</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">1</span>]
+                                                        <span class="ruby-identifier">user</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_i</span>()
+                                                        <span class="ruby-identifier">user</span>.<span class="ruby-identifier">gid</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">3</span>].<span class="ruby-identifier">to_i</span>()
+                                                        <span class="ruby-identifier">user</span>.<span class="ruby-identifier">fullname</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">4</span>]
+                                                        <span class="ruby-identifier">user</span>.<span class="ruby-identifier">homedir</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">5</span>]
+                                                        <span class="ruby-identifier">user</span>.<span class="ruby-identifier">shell</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">6</span>]
+                                                        <span class="ruby-identifier">userlist</span>[<span class="ruby-identifier">user</span>.<span class="ruby-identifier">username</span>] = <span class="ruby-identifier">user</span>
+                                                <span class="ruby-keyword kw">end</span>
+                                        }
+                                }
+
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">userlist</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

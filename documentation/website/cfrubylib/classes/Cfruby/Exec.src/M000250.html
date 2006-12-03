@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>exec (Cfruby::Exec)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File exec.rb, line 48</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">Exec</span><span class="ruby-operator">::</span><span class="ruby-identifier">exec</span>(<span class="ruby-identifier">command</span>, <span class="ruby-identifier">user</span>=<span class="ruby-keyword kw">nil</span>)
+                        
+                        <span class="ruby-identifier">output</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                        <span class="ruby-identifier">erroroutput</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                        
+                        <span class="ruby-comment cmt"># the following code is a touch hackish because select returns readable</span>
+                        <span class="ruby-comment cmt"># on streams that are at EOF, so we have to check for available input</span>
+                        <span class="ruby-comment cmt"># as well as for EOF each time through to avoid getting a bunch of</span>
+                        <span class="ruby-comment cmt"># blank entry lines.</span>
+                        <span class="ruby-identifier">attemptmessage</span> = <span class="ruby-node">&quot;run \&quot;#{command}\&quot;&quot;</span>
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">user</span>)
+                                <span class="ruby-identifier">attemptmessage</span> <span class="ruby-operator">+=</span> <span class="ruby-node">&quot; as user '#{user}'&quot;</span>
+                        <span class="ruby-keyword kw">end</span>
+                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-identifier">attemptmessage</span>, <span class="ruby-value str">'unknown'</span>, <span class="ruby-value str">'exec'</span>) {
+                                <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">user</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>
+                                        <span class="ruby-identifier">command</span> = <span class="ruby-node">&quot;su #{user} -c #{shellescape(command)}&quot;</span>
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;Running '#{command}'&quot;</span>)
+                                <span class="ruby-identifier">stdin</span>, <span class="ruby-identifier">stdout</span>, <span class="ruby-identifier">stderr</span> = <span class="ruby-constant">Open3</span>.<span class="ruby-identifier">popen3</span>(<span class="ruby-identifier">command</span>)
+                                <span class="ruby-identifier">reading</span> = <span class="ruby-keyword kw">true</span>
+                                <span class="ruby-keyword kw">while</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">stdout</span>.<span class="ruby-identifier">eof?</span> <span class="ruby-keyword kw">or</span> <span class="ruby-operator">!</span><span class="ruby-identifier">stderr</span>.<span class="ruby-identifier">eof?</span>)
+                                        <span class="ruby-identifier">ready</span> = <span class="ruby-identifier">select</span>([<span class="ruby-identifier">stdout</span>], <span class="ruby-keyword kw">nil</span>, <span class="ruby-keyword kw">nil</span>, <span class="ruby-value">0</span>)
+                                        <span class="ruby-identifier">ready</span>[<span class="ruby-value">0</span>].<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">istream</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-identifier">line</span> = <span class="ruby-identifier">istream</span>.<span class="ruby-identifier">gets</span>()
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">line</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                        <span class="ruby-identifier">output</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">line</span>
+                                                <span class="ruby-keyword kw">end</span>
+                                        }
+                                
+                                        <span class="ruby-identifier">ready</span> = <span class="ruby-identifier">select</span>([<span class="ruby-identifier">stderr</span>], <span class="ruby-keyword kw">nil</span>, <span class="ruby-keyword kw">nil</span>, <span class="ruby-value">0</span>)
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">ready</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-identifier">ready</span>[<span class="ruby-value">0</span>].<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">istream</span><span class="ruby-operator">|</span>
+                                                        <span class="ruby-identifier">line</span> = <span class="ruby-identifier">istream</span>.<span class="ruby-identifier">gets</span>()
+                                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">line</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                                <span class="ruby-identifier">erroroutput</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">line</span>
+                                                        <span class="ruby-keyword kw">end</span>
+                                                }
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+                        }
+
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-constant">Array</span>.[](<span class="ruby-identifier">output</span>, <span class="ruby-identifier">erroroutput</span>))                        
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

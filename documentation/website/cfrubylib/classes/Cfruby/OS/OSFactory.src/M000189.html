@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>get_os (Cfruby::OS::OSFactory)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File os.rb, line 46</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">get_os</span>()
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-value str">'Retrieving an OS object'</span>)
+                                
+                                <span class="ruby-comment cmt"># try to use uname to get the OS</span>
+                                <span class="ruby-identifier">os</span> = <span class="ruby-identifier">set_with_uname</span>()
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">os</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;OS #{os['name']}&quot;</span>)
+                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">os</span>)
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-comment cmt"># if we failed, try RUBY_PLATFORM</span>
+                                <span class="ruby-identifier">os</span> = <span class="ruby-identifier">set_with_RUBY_PLATFORM</span>()
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">os</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'verbose'</span>, <span class="ruby-node">&quot;OS #{os['name']}&quot;</span>)
+                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">os</span>)
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">OSUndetectableError</span>, <span class="ruby-value str">&quot;OS is not recognized!&quot;</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

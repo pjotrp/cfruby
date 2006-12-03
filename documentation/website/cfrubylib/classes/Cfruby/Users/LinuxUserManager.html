@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Cfruby::Users::LinuxUserManager</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Cfruby::Users::LinuxUserManager</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/osmodules/linux-generic_rb.html">
+                osmodules/linux-generic.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/osmodules/linux-generic.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="UserManager.html">
+                UserManager
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+Implementation of the <a href="UserManager.html">UserManager</a> class for
+generic linux systems
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000070">add_group</a>&nbsp;&nbsp;
+      <a href="#M000069">add_user</a>&nbsp;&nbsp;
+      <a href="#M000075">delete_group</a>&nbsp;&nbsp;
+      <a href="#M000074">delete_user</a>&nbsp;&nbsp;
+      <a href="#M000071">group?</a>&nbsp;&nbsp;
+      <a href="#M000073">groups</a>&nbsp;&nbsp;
+      <a href="#M000077">infile</a>&nbsp;&nbsp;
+      <a href="#M000076">shellescape</a>&nbsp;&nbsp;
+      <a href="#M000072">users</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000070" class="method-detail">
+        <a name="M000070"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000070.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000070.html');return false;">
+          <span class="method-name">add_group</span><span class="method-args">(group, gid=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+adds a group to the system with an optional fixed uid
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000069" class="method-detail">
+        <a name="M000069"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000069.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000069.html');return false;">
+          <span class="method-name">add_user</span><span class="method-args">(user, password=nil, uid=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+adds a user to the system with an optional fixed uid
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000075" class="method-detail">
+        <a name="M000075"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000075.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000075.html');return false;">
+          <span class="method-name">delete_group</span><span class="method-args">(group)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+deletes a group from the system
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000074" class="method-detail">
+        <a name="M000074"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000074.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000074.html');return false;">
+          <span class="method-name">delete_user</span><span class="method-args">(user, removehome=false)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+deletes a user from the system
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000071" class="method-detail">
+        <a name="M000071"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000071.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000071.html');return false;">
+          <span class="method-name">group?</span><span class="method-args">(group)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+returns true if group exists, false otherwise
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000073" class="method-detail">
+        <a name="M000073"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000073.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000073.html');return false;">
+          <span class="method-name">groups</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+returns a list of all the <a
+href="LinuxUserManager.html#M000073">groups</a> on the system
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000072" class="method-detail">
+        <a name="M000072"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000072.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000072.html');return false;">
+          <span class="method-name">users</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+returns a list of all the <a href="LinuxUserManager.html#M000072">users</a>
+on the system
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Protected Instance methods</h3>
+
+      <div id="method-M000077" class="method-detail">
+        <a name="M000077"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000077.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000077.html');return false;">
+          <span class="method-name">infile</span><span class="method-args">(str, filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+returns true if the specified str is in the file in the form of str:&#8230;
+such as in /etc/passwd or /etc/group
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000076" class="method-detail">
+        <a name="M000076"></a>
+
+        <div class="method-heading">
+          <a href="LinuxUserManager.src/M000076.html" target="Code" class="method-signature"
+            onclick="popupCode('LinuxUserManager.src/M000076.html');return false;">
+          <span class="method-name">shellescape</span><span class="method-args">(str)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

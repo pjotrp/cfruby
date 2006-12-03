@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>has_process? (Cfruby::Processes::ProcessManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File processes.rb, line 120</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">has_process?</span>(<span class="ruby-identifier">processname</span>)
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">processname</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Regexp</span>))
+                                        <span class="ruby-identifier">processname</span> = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">escape</span>(<span class="ruby-identifier">processname</span>))
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-identifier">processes</span>().<span class="ruby-identifier">each_value</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">runningprocess</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">processname</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">runningprocess</span>.<span class="ruby-identifier">program</span>))
+                                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;\&quot;#{processname.source}\&quot; is running&quot;</span>)
+                                                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">runningprocess</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                                
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;\&quot;#{processname.source}\&quot; is not running&quot;</span>)
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">false</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>process (CfYAML)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File cfyaml.rb, line 79</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-constant">CfYAML</span>.<span class="ruby-identifier">process</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">changed</span>=<span class="ruby-keyword kw">false</span>)
+                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Hash</span>))
+                        <span class="ruby-keyword kw">begin</span>
+                                <span class="ruby-comment cmt"># first check for condition</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'conditions'</span>))
+                                        <span class="ruby-identifier">conditions</span> = <span class="ruby-identifier">object</span>[<span class="ruby-value str">'conditions'</span>]
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">conditions</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Array</span>))
+                                                <span class="ruby-identifier">conditions</span> = <span class="ruby-constant">Array</span>.[](<span class="ruby-identifier">conditions</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                        
+                                        <span class="ruby-identifier">conditions</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">c</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">eval</span>(<span class="ruby-identifier">c</span>.<span class="ruby-identifier">to_s</span>))
+                                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">false</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                        }
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'change_made'</span>))
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">object</span>[<span class="ruby-value str">'change_made'</span>] <span class="ruby-operator">!=</span> <span class="ruby-identifier">changed</span>)
+                                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">false</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-comment cmt"># load has to be handled here because it should not change</span>
+                                <span class="ruby-comment cmt"># the changed flag on its own.</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'load'</span>))
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">object</span>[<span class="ruby-value str">'load'</span>].<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Array</span>))
+                                                <span class="ruby-identifier">object</span>[<span class="ruby-value str">'load'</span>].<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">s</span><span class="ruby-operator">|</span>
+                                                        <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">load</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">changed</span>)
+                                                }
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">load</span>(<span class="ruby-identifier">object</span>[<span class="ruby-value str">'load'</span>], <span class="ruby-identifier">changed</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-identifier">changed</span> = <span class="ruby-keyword kw">false</span>
+                
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'actions'</span>))
+                                        <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">process</span>(<span class="ruby-identifier">object</span>[<span class="ruby-value str">'actions'</span>], <span class="ruby-identifier">changed</span>)
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'eval'</span>))
+                                        <span class="ruby-identifier">evaluate</span>(<span class="ruby-identifier">object</span>)
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'filename'</span>))
+                                        <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">configure_file</span>(<span class="ruby-identifier">object</span>)
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'install'</span>))
+                                        <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">install_packages</span>(<span class="ruby-identifier">object</span>)
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'delete'</span>))
+                                        <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">delete</span>(<span class="ruby-identifier">object</span>)
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'disable'</span>))
+                                        <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">disable</span>(<span class="ruby-identifier">object</span>)
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'execute'</span>))
+                                        <span class="ruby-identifier">execute</span>(<span class="ruby-identifier">object</span>)
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">CfYamlError</span>, <span class="ruby-value str">&quot;Unable to find primary key (actions, eval, filename, install, or execute)&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+                        <span class="ruby-keyword kw">rescue</span>
+                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">CfYamlError</span>, <span class="ruby-node">&quot;Error processing section:\n #{object.to_yaml}\n\n#{$!.to_s}\n\n&quot;</span>)
+                        <span class="ruby-keyword kw">end</span>
+                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">object</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Array</span>))
+                        <span class="ruby-identifier">object</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">o</span><span class="ruby-operator">|</span>
+                                <span class="ruby-identifier">changed</span> = <span class="ruby-identifier">process</span>(<span class="ruby-identifier">o</span>, <span class="ruby-identifier">changed</span>)
+                        }
+                <span class="ruby-keyword kw">end</span>
+                
+                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">changed</span>)
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

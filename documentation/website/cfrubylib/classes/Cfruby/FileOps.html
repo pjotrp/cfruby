@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Cfruby::FileOps</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Cfruby::FileOps</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/fileops_rb.html">
+                fileops.rb
+                </a>
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/fileops.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000138">backup</a>&nbsp;&nbsp;
+      <a href="#M000144">chmod</a>&nbsp;&nbsp;
+      <a href="#M000143">chown</a>&nbsp;&nbsp;
+      <a href="#M000141">chown_mod</a>&nbsp;&nbsp;
+      <a href="#M000129">copy</a>&nbsp;&nbsp;
+      <a href="#M000135">create</a>&nbsp;&nbsp;
+      <a href="#M000140">delete</a>&nbsp;&nbsp;
+      <a href="#M000139">delete_nonalpha</a>&nbsp;&nbsp;
+      <a href="#M000142">disable</a>&nbsp;&nbsp;
+      <a href="#M000136">flock</a>&nbsp;&nbsp;
+      <a href="#M000127">get_protocol</a>&nbsp;&nbsp;
+      <a href="#M000134">link</a>&nbsp;&nbsp;
+      <a href="#M000132">mkdir</a>&nbsp;&nbsp;
+      <a href="#M000128">move</a>&nbsp;&nbsp;
+      <a href="#M000133">rmdir</a>&nbsp;&nbsp;
+      <a href="#M000137">set_backup</a>&nbsp;&nbsp;
+      <a href="#M000145">strip_protocol</a>&nbsp;&nbsp;
+      <a href="#M000130">touch</a>&nbsp;&nbsp;
+      <a href="#M000131">unlink</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Module <a href="FileOps/SymlinkHandler.html" class="link">Cfruby::FileOps::SymlinkHandler</a><br />
+Class <a href="FileOps/FileCommand.html" class="link">Cfruby::FileOps::FileCommand</a><br />
+Class <a href="FileOps/FileOpsError.html" class="link">Cfruby::FileOps::FileOpsError</a><br />
+Class <a href="FileOps/FileOpsFileExistError.html" class="link">Cfruby::FileOps::FileOpsFileExistError</a><br />
+Class <a href="FileOps/FileOpsOverwriteError.html" class="link">Cfruby::FileOps::FileOpsOverwriteError</a><br />
+Class <a href="FileOps/FileOpsUnknownProtocolError.html" class="link">Cfruby::FileOps::FileOpsUnknownProtocolError</a><br />
+Class <a href="FileOps/FileOpsWrongFiletypeError.html" class="link">Cfruby::FileOps::FileOpsWrongFiletypeError</a><br />
+Class <a href="FileOps/HTTPFileCommand.html" class="link">Cfruby::FileOps::HTTPFileCommand</a><br />
+Class <a href="FileOps/LocalFileCommand.html" class="link">Cfruby::FileOps::LocalFileCommand</a><br />
+Class <a href="FileOps/RsyncFileCommand.html" class="link">Cfruby::FileOps::RsyncFileCommand</a><br />
+
+    </div>
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000138" class="method-detail">
+        <a name="M000138"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000138.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000138.html');return false;">
+          <span class="method-name">backup</span><span class="method-args">(filename, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Creates a <a href="FileOps.html#M000138">backup</a> <a
+href="FileOps.html#M000129">copy</a> of <tt>filename</tt> with the new
+filename filename_cfruby_yyyymmdd_x, where x increments as more backups are
+added to the same directory. Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:backupdir</tt>:</td><td>directory to hold the backups (defaults to the same directory as
+<tt>filename</tt>)
+
+</td></tr>
+<tr><td valign="top"><tt>:onlyonchange</tt>:</td><td>prevent <a href="FileOps.html#M000138">backup</a> from making a <a
+href="FileOps.html#M000138">backup</a> if viable <a
+href="FileOps.html#M000138">backup</a> already exists.
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000144" class="method-detail">
+        <a name="M000144"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000144.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000144.html');return false;">
+          <span class="method-name">chmod</span><span class="method-args">(basedir, permissions, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Chmod&#8216;s matching files. Returns true if a change was made, false
+otherwise.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000143" class="method-detail">
+        <a name="M000143"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000143.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000143.html');return false;">
+          <span class="method-name">chown</span><span class="method-args">(basedir, owner, group=nil, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Chown&#8216;s matching files. Returns true if a change was made, false
+otherwise.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000141" class="method-detail">
+        <a name="M000141"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000141.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000141.html');return false;">
+          <span class="method-name">chown_mod</span><span class="method-args">(basedir, owner, group, mode, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Changes the owner, group, and mode all at once. Returns true if a change
+was made to owner, group, or mode - false otherwise. If mode==nil it is
+ignored.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000129" class="method-detail">
+        <a name="M000129"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000129.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000129.html');return false;">
+          <span class="method-name">copy</span><span class="method-args">(filename, newfilename, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Copies <tt>filename</tt> to <tt>newfilename</tt>. Options may be set to one
+or more of the following:
+</p>
+<table>
+<tr><td valign="top"><tt>:??????</tt>:</td><td>anything defined under the protocol specific <a
+href="FileOps.html#M000129">copy</a> function
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000135" class="method-detail">
+        <a name="M000135"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000135.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000135.html');return false;">
+          <span class="method-name">create</span><span class="method-args">(filenames, owner = Process::Sys.geteuid(), group = Process::Sys.getegid(), mode = 0600)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Creates an empty file <tt>filenames</tt> if the file does not already
+exist. <tt>filenames</tt> may be an <a href="../Array.html">Array</a> or <a
+href="../String.html">String</a>. If the file does exist, the mode and
+ownership may be adjusted. Returns true if a file was created, false
+otherwise.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000140" class="method-detail">
+        <a name="M000140"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000140.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000140.html');return false;">
+          <span class="method-name">delete</span><span class="method-args">(basedir, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Deletes matching files. Returns true if a file is actually deleted, false
+otherwise. In addition to the normal find options <a
+href="FileOps.html#M000140">delete</a> also takes:
+</p>
+<table>
+<tr><td valign="top"><tt>:force</tt>:</td><td>=&gt; (true|false) <a href="FileOps.html#M000140">delete</a> non-empty
+matching directories
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000139" class="method-detail">
+        <a name="M000139"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000139.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000139.html');return false;">
+          <span class="method-name">delete_nonalpha</span><span class="method-args">(basedir, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Deletes files that contain no alphanumeric characters. Returns true if any
+files were deleted false otherwise
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000142" class="method-detail">
+        <a name="M000142"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000142.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000142.html');return false;">
+          <span class="method-name">disable</span><span class="method-args">(basedir, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Disables matching files by setting all permissions to 0000. Returns true if
+anything was disabled, false otherwise.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000136" class="method-detail">
+        <a name="M000136"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000136.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000136.html');return false;">
+          <span class="method-name">flock</span><span class="method-args">(fn, attr=nil, ext='.cflock') {|f| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Lock a file <tt>fn</tt>, using a lockfile, and return a file handle to
+<tt>fn</tt>. <tt>attr</tt> are standard file open attributes like
+&#8216;w&#8217;. File based locking is used to correctly handle mounted NFS
+and SMB shares.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000127" class="method-detail">
+        <a name="M000127"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000127.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000127.html');return false;">
+          <span class="method-name">get_protocol</span><span class="method-args">(filename, newfilename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns a <a href="FileOps/FileCommand.html">FileCommand</a> object based
+on the first protocol it sees in either filename or newfilename
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000134" class="method-detail">
+        <a name="M000134"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000134.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000134.html');return false;">
+          <span class="method-name">link</span><span class="method-args">(filename, linkfile, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Creates a symbolic <a href="FileOps.html#M000134">link</a>
+<tt>linkfile</tt> which points to <tt>filename</tt>. If <tt>linkfile</tt>
+already exists and it is a directory, creates a symbolic <a
+href="FileOps.html#M000134">link</a> +linkfile/filename+. If
+<tt>linkfile</tt> already exists and it is not a directory, raises <a
+href="FileOps/FileOpsOverwriteError.html">FileOpsOverwriteError</a>.
+Returns true if a <a href="FileOps.html#M000134">link</a> is made false
+otherwise. Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:force</tt>:</td><td>if true, overwrite <tt>linkfile</tt> even if it already exists
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000132" class="method-detail">
+        <a name="M000132"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000132.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000132.html');return false;">
+          <span class="method-name">mkdir</span><span class="method-args">(dirname, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Creates a directory entry. <tt>dirname</tt> can be an <a
+href="../Array.html">Array</a> or <a href="../String.html">String</a>.
+Options:
+</p>
+<table>
+<tr><td valign="top"><tt>:mode</tt>:</td><td>mode of the directory
+
+</td></tr>
+<tr><td valign="top"><tt>:user</tt>:</td><td>user to own the directory
+
+</td></tr>
+<tr><td valign="top"><tt>:group</tt>:</td><td>group to own the directory
+
+</td></tr>
+<tr><td valign="top"><tt>:makeparent</tt>:</td><td>make any needed parent directories
+
+</td></tr>
+</table>
+<p>
+Returns true if a directory was created, false otherwise
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000128" class="method-detail">
+        <a name="M000128"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000128.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000128.html');return false;">
+          <span class="method-name">move</span><span class="method-args">(filename, newfilename, options = {})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Moves <tt>filename</tt> to <tt>newfilename</tt>. Options may be set to one
+or more of the following:
+</p>
+<table>
+<tr><td valign="top"><tt>:??????</tt>:</td><td>anything defined under the protocol specific <a
+href="FileOps.html#M000129">copy</a> function
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000133" class="method-detail">
+        <a name="M000133"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000133.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000133.html');return false;">
+          <span class="method-name">rmdir</span><span class="method-args">(dirname, force = false)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Remove a directory entry. <tt>dirname</tt> can be an <a
+href="../Array.html">Array</a> or <a href="../String.html">String</a>.
+Returns true if a directory was removed, false otherwise
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000137" class="method-detail">
+        <a name="M000137"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000137.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000137.html');return false;">
+          <span class="method-name">set_backup</span><span class="method-args">(newbackup)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Sets @@<a href="FileOps.html#M000138">backup</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000130" class="method-detail">
+        <a name="M000130"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000130.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000130.html');return false;">
+          <span class="method-name">touch</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create an empty file named <tt>filename</tt> Returns true if the file was
+created, false otherwise
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000131" class="method-detail">
+        <a name="M000131"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000131.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000131.html');return false;">
+          <span class="method-name">unlink</span><span class="method-args">(filenamelist)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="FileOps.html#M000140">delete</a>
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Private Class methods</h3>
+
+      <div id="method-M000145" class="method-detail">
+        <a name="M000145"></a>
+
+        <div class="method-heading">
+          <a href="FileOps.src/M000145.html" target="Code" class="method-signature"
+            onclick="popupCode('FileOps.src/M000145.html');return false;">
+          <span class="method-name">strip_protocol</span><span class="method-args">(filename)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

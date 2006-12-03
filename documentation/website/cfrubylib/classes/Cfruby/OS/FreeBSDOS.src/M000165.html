@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>jailed? (Cfruby::OS::FreeBSDOS)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/freebsd.rb, line 63</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">jailed?</span>()
+                                <span class="ruby-comment cmt"># Get our FreeBSD major version</span>
+                                <span class="ruby-identifier">version</span> = <span class="ruby-ivar">@keys</span>[<span class="ruby-value str">'version'</span>][<span class="ruby-value">0</span>,<span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span>()
+
+                                <span class="ruby-comment cmt"># Our options are somewhat limited if we are freebsd 4.x, so we'll run a few tests</span>
+                                <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">version</span> <span class="ruby-operator">==</span> <span class="ruby-value">4</span>
+                                        <span class="ruby-comment cmt"># Easiest test, we check for a real kernel, since no jail should have a real one</span>
+                                        <span class="ruby-keyword kw">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exists?</span>(<span class="ruby-value str">'/kernel'</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">symlink?</span>(<span class="ruby-value str">'/kernel'</span>)
+                                                <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">false</span>
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-comment cmt"># Second test, we check the process table</span>
+                                        <span class="ruby-identifier">psoutput</span> = <span class="ruby-value">`ps ax`</span>
+
+                                        <span class="ruby-comment cmt"># If every line has a J in it, it's likely a jail (the first line isn't a process, that's why the jcount starts at 1)</span>
+                                        <span class="ruby-identifier">lines</span> = <span class="ruby-identifier">psoutput</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">&quot;\n&quot;</span>)
+                                        <span class="ruby-identifier">jcount</span> = <span class="ruby-value">1</span>
+                                        <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">line</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/J/</span>
+                                                        <span class="ruby-identifier">jcount</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                                                <span class="ruby-keyword kw">end</span>
+                                        }
+                                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">lines</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">jcount</span>
+                                                <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">true</span>
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-comment cmt"># Last resort, we see if 'injail' exists and if so, we check the return code from that</span>
+                                        <span class="ruby-keyword kw">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exists?</span>(<span class="ruby-value str">'/usr/local/bin/injail'</span>)
+                                                <span class="ruby-value">`injail`</span>
+                                                <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">$?</span>.<span class="ruby-identifier">exitstatus</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+                                                        <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">true</span>
+                                                <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">$?</span>.<span class="ruby-identifier">exitstatus</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
+                                                        <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">false</span>
+                                                <span class="ruby-keyword kw">else</span>
+                                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">OSFreeBSDJailError</span>, <span class="ruby-value str">&quot;/usr/local/bin/injail exists but couldn't determine jail status (error code 2)&quot;</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-comment cmt"># If we got this far, we can't figure out if we are in a jail and we lob an error</span>
+                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">OSFreeBSDJailError</span>, <span class="ruby-value str">&quot;Couldn't determine jail status with any test&quot;</span>)                                  
+
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-comment cmt"># If we are FreeBSD &gt;5, we can consult sysctl (we think)</span>
+                                <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">version</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">5</span>
+                                        <span class="ruby-identifier">sysctloutput</span> = <span class="ruby-value">`sysctl security.jail.jailed`</span>
+                                        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">sysctloutput</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/1/</span>
+                                                <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">true</span>
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">false</span>
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

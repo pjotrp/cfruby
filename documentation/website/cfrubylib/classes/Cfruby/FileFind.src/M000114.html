@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>find (Cfruby::FileFind)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File filefind.rb, line 316</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileFind</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">basedir</span>, <span class="ruby-identifier">options</span> = {}, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+                        <span class="ruby-identifier">filematch</span> = <span class="ruby-keyword kw">nil</span>
+                        <span class="ruby-identifier">matched</span> = <span class="ruby-value">0</span>
+
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:filematch</span>] <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                <span class="ruby-identifier">filematch</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:filematch</span>]
+                        <span class="ruby-keyword kw">else</span>
+                                <span class="ruby-comment cmt"># set real options based on helper options</span>
+                                <span class="ruby-keyword kw">if</span>((<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:nonrecursive</span>] <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:recursive</span>]) <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:depth</span>])
+                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ArgumentError</span>, <span class="ruby-value str">&quot;:depth argument is not meaningful with :recursive or :nonrecursive&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:nonrecursive</span>])
+                                        <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:depth</span>] = <span class="ruby-value">0</span>
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:recursive</span>])
+                                        <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:depth</span>] = <span class="ruby-value">200</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:depth</span>] <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>
+                                        <span class="ruby-identifier">options</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-identifier">:recursive</span>)
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-comment cmt"># set basic options if they weren't passed in</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:glob</span>] <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-value str">&quot;No glob given for search, using '*'&quot;</span>)
+                                        <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:glob</span>] = <span class="ruby-value str">'*'</span>
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:depth</span>] <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-value str">&quot;No depth given for search, using 0&quot;</span>)
+                                        <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:depth</span>] = <span class="ruby-value">0</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-comment cmt"># get a filematch object</span>
+                                <span class="ruby-identifier">filematch</span> = <span class="ruby-constant">FileMatch</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">options</span>)
+                        <span class="ruby-keyword kw">end</span>
+
+                        <span class="ruby-comment cmt"># add the filematch back to options so we can pass it back to</span>
+                        <span class="ruby-comment cmt"># ourselves recursively</span>
+                        <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:filematch</span>] = <span class="ruby-identifier">filematch</span>
+                        
+                        <span class="ruby-comment cmt"># set some options to local variables to prevent a lookup on every file</span>
+                        <span class="ruby-identifier">maxdepth</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:depth</span>]
+
+                        <span class="ruby-comment cmt"># set the file return order</span>
+                        <span class="ruby-identifier">deleteorder</span> = <span class="ruby-keyword kw">false</span>
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:returnorder</span>] <span class="ruby-operator">==</span> <span class="ruby-value str">'delete'</span>)
+                                <span class="ruby-identifier">deleteorder</span> = <span class="ruby-keyword kw">true</span>
+                        <span class="ruby-keyword kw">end</span>
+                        
+                        <span class="ruby-comment cmt"># allow people to pass in lists</span>
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:each</span>) <span class="ruby-keyword kw">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">String</span>) <span class="ruby-keyword kw">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Pathname</span>))
+                                <span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">subdir</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">find</span>(<span class="ruby-identifier">subdir</span>, <span class="ruby-identifier">options</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">filename</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-identifier">matched</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                                                <span class="ruby-keyword kw">yield</span>(<span class="ruby-identifier">filename</span>)
+                                        }
+                                }
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">matched</span>)
+                        <span class="ruby-keyword kw">else</span>
+                                <span class="ruby-comment cmt"># attempt to expand with a glob and expand_path</span>
+                                <span class="ruby-identifier">dirs</span> = <span class="ruby-constant">Dir</span>.<span class="ruby-identifier">glob</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">to_s</span>))
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">dirs</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">1</span>)
+                                        <span class="ruby-identifier">find</span>(<span class="ruby-identifier">dirs</span>, <span class="ruby-identifier">options</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">filename</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-identifier">matched</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                                                <span class="ruby-keyword kw">yield</span>(<span class="ruby-identifier">filename</span>)
+                                        }
+                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">matched</span>)
+                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">dirs</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>)
+                                        <span class="ruby-comment cmt"># if we didn't get anything out of the glob expansion, then the file doesn't really exist</span>
+                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">FileExistError</span>, <span class="ruby-node">&quot;\&quot;#{basedir}\&quot; does not exist&quot;</span>)
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-identifier">basedir</span> = <span class="ruby-identifier">dirs</span>[<span class="ruby-value">0</span>]
+                                <span class="ruby-keyword kw">end</span>
+                        <span class="ruby-keyword kw">end</span>
+                        
+                        <span class="ruby-comment cmt"># convert basedir into an absolute pathname</span>
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Pathname</span>))
+                                <span class="ruby-identifier">basedir</span> = <span class="ruby-constant">Pathname</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">basedir</span>)
+                        <span class="ruby-keyword kw">end</span>
+                        
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">symlink?</span>() <span class="ruby-keyword kw">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">exist?</span>())
+                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">FileExistError</span>, <span class="ruby-node">&quot;#{basedir.to_s} does not exist&quot;</span>)
+                        <span class="ruby-keyword kw">end</span>
+                        
+                        <span class="ruby-identifier">directories</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                        <span class="ruby-identifier">visited</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">new</span>()
+                        <span class="ruby-comment cmt"># if the given basedir is a symlink, only follow it if :followsymlink == true</span>
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">symlink?</span> <span class="ruby-keyword kw">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">options</span>[<span class="ruby-identifier">:followsymlinks</span>])
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">filematch</span>.<span class="ruby-identifier">matches?</span>(<span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">expand_path</span>))
+                                        <span class="ruby-identifier">matched</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                                        <span class="ruby-keyword kw">yield</span>(<span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">expand_path</span>)
+                                <span class="ruby-keyword kw">end</span>
+                        <span class="ruby-keyword kw">else</span>
+                                <span class="ruby-identifier">basedir</span> = <span class="ruby-identifier">basedir</span>.<span class="ruby-identifier">realpath</span>
+                                <span class="ruby-identifier">directories</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">Array</span>.[](<span class="ruby-identifier">basedir</span>, <span class="ruby-value">0</span>)
+                        <span class="ruby-keyword kw">end</span>
+
+                        <span class="ruby-identifier">yielddirs</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                        
+                        <span class="ruby-keyword kw">while</span>(<span class="ruby-identifier">directories</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>)
+                                <span class="ruby-identifier">currentdir</span> = <span class="ruby-identifier">directories</span>.<span class="ruby-identifier">pop</span>()
+                                
+                                <span class="ruby-comment cmt"># skip this directory if we have already been there</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">visited</span>[<span class="ruby-identifier">currentdir</span>[<span class="ruby-value">0</span>]] <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                        <span class="ruby-keyword kw">next</span>
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-identifier">visited</span>[<span class="ruby-identifier">currentdir</span>[<span class="ruby-value">0</span>]] = <span class="ruby-keyword kw">true</span>
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-identifier">currentdepth</span> = <span class="ruby-identifier">currentdir</span>[<span class="ruby-value">1</span>]
+                                <span class="ruby-identifier">currentdir</span> = <span class="ruby-identifier">currentdir</span>[<span class="ruby-value">0</span>]
+                                
+                                <span class="ruby-comment cmt"># add the directory to the yielddirs list if we need to, or yield it</span>
+                                <span class="ruby-comment cmt"># depending on :returnorder</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">filematch</span>.<span class="ruby-identifier">matches?</span>(<span class="ruby-identifier">currentdir</span>))
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">deleteorder</span>)
+                                                <span class="ruby-identifier">yielddirs</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">currentdir</span>
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-identifier">matched</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                                                <span class="ruby-keyword kw">yield</span>(<span class="ruby-identifier">currentdir</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-comment cmt"># yield files at this level and recurse if needed.  We use a form of pseudo recursion to avoid</span>
+                                <span class="ruby-comment cmt"># exhausting the stack depth.  Directories that match the find are added to a special yielddirs</span>
+                                <span class="ruby-comment cmt"># list and are yielded to the caller after the entire recursion has finished.  This ensures that</span>
+                                <span class="ruby-comment cmt"># things like recursive delete work properly.</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">currentdepth</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">maxdepth</span>)
+                                        <span class="ruby-constant">Dir</span>.<span class="ruby-identifier">glob</span>(<span class="ruby-node">&quot;#{currentdir}/*&quot;</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">FNM_DOTMATCH</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">filename</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-identifier">filename</span> = <span class="ruby-constant">FileFind</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-constant">Pathname</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">filename</span>), <span class="ruby-identifier">options</span>)
+
+                                                <span class="ruby-comment cmt"># skip if it escapes our basedir</span>
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">filename</span>.<span class="ruby-identifier">relative_path_from</span>(<span class="ruby-identifier">basedir</span>).<span class="ruby-identifier">to_s</span>() <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/(^|\/)\.\.(\/|$)/</span>)
+                                                        <span class="ruby-keyword kw">next</span>
+                                                <span class="ruby-keyword kw">end</span>
+
+                                                <span class="ruby-comment cmt"># if it is a directory add it to the list for recursion</span>
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">filename</span>.<span class="ruby-identifier">directory?</span>())
+                                                        <span class="ruby-identifier">directories</span>.<span class="ruby-identifier">push</span>(<span class="ruby-constant">Array</span>.[](<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">currentdepth</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>))
+                                                <span class="ruby-keyword kw">elsif</span>(<span class="ruby-identifier">filematch</span>.<span class="ruby-identifier">matches?</span>(<span class="ruby-identifier">filename</span>))
+                                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;found #{filename}&quot;</span>)
+                                                        <span class="ruby-identifier">matched</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                                                        <span class="ruby-keyword kw">yield</span>(<span class="ruby-identifier">filename</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                        }
+                                <span class="ruby-keyword kw">end</span>
+
+                        <span class="ruby-keyword kw">end</span>
+                        
+                        <span class="ruby-keyword kw">while</span>(<span class="ruby-identifier">yielddirs</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>)
+                                <span class="ruby-identifier">matched</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+                                <span class="ruby-keyword kw">yield</span>(<span class="ruby-identifier">yielddirs</span>.<span class="ruby-identifier">pop</span>)
+                        <span class="ruby-keyword kw">end</span>
+
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">matched</span>)
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

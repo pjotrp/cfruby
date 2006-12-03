@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: cfyaml.rb</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>cfyaml.rb</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>cfyaml.rb
+        &nbsp;(<a href="http://rubyforge.org/viewvc/lib/libcfruby/cfyaml.rb?root=cfruby&view=markup"><acronym title="Concurrent Versioning System">CVS</acronym></a>)
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Wed Jan 25 10:51:56 +0100 2006</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <table>
+<tr><td valign="top">Author:</td><td>David Powers
+
+</td></tr>
+<tr><td valign="top">Copyright:</td><td>August, 2005
+
+</td></tr>
+<tr><td valign="top">License:</td><td>Ruby License
+
+</td></tr>
+</table>
+<p>
+cfyaml is a simplified front end for the entire libcfruby set of modules.
+It provides a very concise syntax for writing system configuration and
+maintenance scripts, while still giving the writer the ability to call on
+the full power of ruby if necessary. cfyaml scripts are written in pure
+YAML, and have a very simple set of processing rules. The script is loaded
+and is examined by the parser as an entire object. If the object is an <a
+href="../classes/Array.html">Array</a>, then each item of the array is
+processed in order, if it is a Hash, then it is examined for a primary key
+(such as filename, eval, execute, delete, etc.). The primary key of the
+Hash determines how the Hash as a whole is processed. filename Hashes for
+instance, may manipulate files in a number of ways.
+</p>
+<p>
+In addition, each Hash may also have a conditions and change_mode key. If
+change_mode is defined the Hash will only be processed if the immediately
+previous section made a change (assuming change_mode is set to true).
+Conditions provides additional flexibility - it is evaluated as raw ruby
+code and the section runs if it returns a true value.
+</p>
+<p>
+A short example of a valid cfyaml script:
+</p>
+<pre>
+  - install: exim
+  - filename: /usr/local/etc/exim
+    options:
+      recursive: true
+    user: mailnull
+    group: mail
+    mode: u=rwX,g=rX,o-rwx
+  - filename: /etc/rc.conf
+    set:
+      - [sendmail_enable, '&quot;NONE&quot;']
+      - [exim_enable, '&quot;YES&quot;']
+      - [exim_flags, '&quot;-bd -q5m&quot;']
+</pre>
+
+    </div>
+
+    <div id="requires-list">
+      <h3 class="section-bar">Required files</h3>
+
+      <div class="name-list">
+      libcfruby/libcfruby&nbsp;&nbsp;
+      yaml&nbsp;&nbsp;
+      </div>
+    </div>
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

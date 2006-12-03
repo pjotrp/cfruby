@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (FlowMonitor::Controller)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File flowmonitor.rb, line 30</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>()
+                        <span class="ruby-comment cmt"># Array to hold registered observers</span>
+                        <span class="ruby-ivar">@observers</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                        
+                        <span class="ruby-comment cmt"># simple mutex for handling multi-threaded access.  NOTE: the mutex is</span>
+                        <span class="ruby-comment cmt"># currently only used to handle registering and unregistering observers.</span>
+                        <span class="ruby-comment cmt"># To avoid overhead messages are sent without the aid of the mutex.  This</span>
+                        <span class="ruby-comment cmt"># could mean that an unregistered observer *could* get an extra message or</span>
+                        <span class="ruby-comment cmt"># two from another thread during the unregistering process.</span>
+                        <span class="ruby-ivar">@mutex</span> = <span class="ruby-constant">Mutex</span>.<span class="ruby-identifier">new</span>()
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

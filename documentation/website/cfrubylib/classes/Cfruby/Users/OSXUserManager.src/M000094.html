@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>delete_user (Cfruby::Users::OSXUserManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/osx.rb, line 153</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">delete_user</span>(<span class="ruby-identifier">username</span>, <span class="ruby-identifier">removehome</span>=<span class="ruby-keyword kw">false</span>)
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;Removing user \&quot;#{username}\&quot;&quot;</span>, <span class="ruby-value str">'nonreversible'</span>, <span class="ruby-value str">'destructive'</span>) {
+                                        <span class="ruby-comment cmt"># get the homedir before we destroy the user if we are going to delete it</span>
+                                        <span class="ruby-comment cmt"># don't actually destroy the directory yet because we may fail to actually</span>
+                                        <span class="ruby-comment cmt"># delete the user</span>
+                                        <span class="ruby-identifier">homedir</span> = <span class="ruby-keyword kw">nil</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">removehome</span>)
+                                                <span class="ruby-identifier">homedir</span> = <span class="ruby-node">`/usr/bin/niutil -readprop . /users/#{username} home`</span>.<span class="ruby-identifier">strip</span>()
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-comment cmt"># FIXME - add check for error return code</span>
+                                        <span class="ruby-identifier">output</span> = <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">Exec</span>.<span class="ruby-identifier">exec</span>(<span class="ruby-node">&quot;/usr/bin/niutil -destroy . /users/#{username}&quot;</span>)
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">output</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">join</span>().<span class="ruby-identifier">strip</span>() <span class="ruby-operator">!=</span> <span class="ruby-value str">''</span>)
+                                                <span class="ruby-identifier">print</span>(<span class="ruby-identifier">output</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">join</span>(<span class="ruby-value str">&quot;\n&quot;</span>))
+                                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">DeleteUserError</span>, <span class="ruby-node">&quot;Unable to delete user \&quot;#{username}\&quot;&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">homedir</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">rmdir</span>(<span class="ruby-identifier">homedir</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

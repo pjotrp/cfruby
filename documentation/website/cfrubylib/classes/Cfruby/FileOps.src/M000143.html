@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>chown (Cfruby::FileOps)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileops.rb, line 690</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">chown</span>(<span class="ruby-identifier">basedir</span>, <span class="ruby-identifier">owner</span>, <span class="ruby-identifier">group</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">options</span> = {})
+                  <span class="ruby-identifier">changemade</span> = <span class="ruby-keyword kw">false</span>
+                        <span class="ruby-identifier">usermanager</span> = <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">OS</span><span class="ruby-operator">::</span><span class="ruby-constant">OSFactory</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">get_os</span>.<span class="ruby-identifier">get_user_manager</span>()
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">owner</span> <span class="ruby-keyword kw">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">owner</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Integer</span>))
+                                <span class="ruby-identifier">owner</span> = <span class="ruby-identifier">usermanager</span>.<span class="ruby-identifier">get_uid</span>(<span class="ruby-identifier">owner</span>)
+                        <span class="ruby-keyword kw">end</span>
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">group</span> <span class="ruby-keyword kw">and</span> <span class="ruby-operator">!</span><span class="ruby-identifier">group</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Integer</span>))
+                                <span class="ruby-identifier">group</span> = <span class="ruby-identifier">usermanager</span>.<span class="ruby-identifier">get_gid</span>(<span class="ruby-identifier">group</span>)
+                        <span class="ruby-keyword kw">end</span>
+
+                        <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">FileFind</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">basedir</span>, <span class="ruby-identifier">options</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">filename</span><span class="ruby-operator">|</span>
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;changing ownership of \&quot;#{filename}\&quot; to \&quot;#{owner}:#{group}\&quot;&quot;</span>, <span class="ruby-value str">'destructive'</span>) {
+                                        <span class="ruby-identifier">currentuid</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">uid</span>
+                                        <span class="ruby-identifier">currentgid</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">gid</span>
+                                        <span class="ruby-identifier">filename</span>.<span class="ruby-identifier">chown</span>(<span class="ruby-identifier">owner</span>, <span class="ruby-identifier">group</span>)
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">currentuid</span> <span class="ruby-operator">==</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">uid</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">currentgid</span> <span class="ruby-operator">==</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">gid</span>)
+                                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-node">&quot;unchanged, already owned by \&quot;#{owner}:#{group}\&quot;&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-identifier">changemade</span> = <span class="ruby-keyword kw">true</span>
+                                }
+                        }
+                        
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">changemade</span>)
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

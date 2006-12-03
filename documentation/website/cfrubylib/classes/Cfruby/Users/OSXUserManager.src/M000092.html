@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>add_user (Cfruby::Users::OSXUserManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/osx.rb, line 76</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">add_user</span>(<span class="ruby-identifier">userinfo</span>, <span class="ruby-identifier">password</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">uid</span>=<span class="ruby-keyword kw">nil</span>)
+                                <span class="ruby-identifier">newuser</span> = <span class="ruby-constant">UserInfo</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">username</span> = <span class="ruby-keyword kw">nil</span>
+                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-keyword kw">nil</span>
+                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">gid</span> = <span class="ruby-keyword kw">nil</span>
+                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">fullname</span> = <span class="ruby-keyword kw">nil</span>
+                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">shell</span> = <span class="ruby-keyword kw">nil</span>
+                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">homedir</span> = <span class="ruby-keyword kw">nil</span>
+
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:username</span>))
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">username</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">BadUsernameError</span>, <span class="ruby-value str">&quot;No username given&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">username</span> = <span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">username</span>
+                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">uid</span>
+                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">gid</span> = <span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">gid</span>
+                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">fullname</span> = <span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">fullname</span>
+                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">shell</span> = <span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">shell</span>
+                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">homedir</span> = <span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">homedir</span>
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">username</span> = <span class="ruby-identifier">userinfo</span>.<span class="ruby-identifier">to_s</span>()
+                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-identifier">uid</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;Adding user \&quot;#{newuser.username}\&quot;&quot;</span>, <span class="ruby-value str">'destructive'</span>) {
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">uid</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-identifier">lastuid</span> = <span class="ruby-value">`/usr/bin/nidump passwd . | /usr/bin/cut -d: -f3 | /usr/bin/sort -n | /usr/bin/tail -n 1`</span>
+                                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-identifier">lastuid</span>.<span class="ruby-identifier">to_i</span>() <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">uid</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>)
+                                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">AddUserError</span>, <span class="ruby-value str">&quot;Error generating new uid&quot;</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">gid</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">gid</span> = <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">uid</span>
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-node">`/usr/bin/niutil -create . /users/#{newuser.username}`</span>
+                                        <span class="ruby-node">`/usr/bin/niutil -createprop . /users/#{newuser.username} passwd`</span>
+                                        <span class="ruby-node">`/usr/bin/niutil -createprop . /users/#{newuser.username} gid #{newuser.gid.to_i()}`</span>
+                                        <span class="ruby-node">`/usr/bin/niutil -createprop . /users/#{newuser.username} uid #{newuser.uid.to_i()}`</span>
+                                        <span class="ruby-node">`/usr/bin/niutil -createprop . /users/#{newuser.username} shell #{newuser.shell.to_s()}`</span>
+                                        <span class="ruby-node">`/usr/bin/niutil -createprop . /users/#{newuser.username} home &quot;#{newuser.homedir.to_s()}&quot;`</span>
+                                        <span class="ruby-node">`/usr/bin/niutil -createprop . /users/#{newuser.username} realname &quot;#{newuser.fullname.to_s()}&quot;`</span>
+                                        <span class="ruby-node">`/usr/bin/niutil -createprop . /users/#{newuser.username} _shadow_passwd`</span>
+
+                                        <span class="ruby-comment cmt"># make the home directory</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">homedir</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span> <span class="ruby-keyword kw">and</span> <span class="ruby-operator">!</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">homedir</span>.<span class="ruby-identifier">to_s</span>()))
+                                                <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">homedir</span>.<span class="ruby-identifier">to_s</span>())
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-comment cmt"># set the password</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">password</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-identifier">set_password</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">username</span>, <span class="ruby-identifier">password</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

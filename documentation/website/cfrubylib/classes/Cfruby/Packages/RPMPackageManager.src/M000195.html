@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>install (Cfruby::Packages::RPMPackageManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/linux-suse.rb, line 18</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">install</span>(<span class="ruby-identifier">packagename</span>, <span class="ruby-identifier">force</span>=<span class="ruby-keyword kw">false</span>)
+                                <span class="ruby-identifier">packagename</span>.<span class="ruby-identifier">strip!</span>()
+
+                                <span class="ruby-comment cmt"># FIXME - check to see if it is already installed</span>
+
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;Installing \&quot;#{packagename}\&quot;&quot;</span>, <span class="ruby-value str">'destructive'</span>, <span class="ruby-value str">'unknown'</span>, <span class="ruby-value str">'install'</span>) {
+                                        <span class="ruby-node">`#{@rpmbin} -i '#{packagename.gsub(/(\')/, &quot;\\\1&quot;)}'`</span>
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

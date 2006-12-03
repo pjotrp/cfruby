@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>set_with_uname (Cfruby::OS::OSFactory)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File os.rb, line 90</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">set_with_uname</span>()
+                                <span class="ruby-comment cmt"># try the os type</span>
+                                <span class="ruby-identifier">unameos</span> = <span class="ruby-value">`uname -s`</span>
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-node">&quot;Platform reported by uname: #{unameos}&quot;</span>)
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">unameos</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/^\s*freebsd/i</span>)
+                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-constant">FreeBSDOS</span>.<span class="ruby-identifier">new</span>())
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">unameos</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/^\s*darwin/i</span>)
+                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-constant">OSXOS</span>.<span class="ruby-identifier">new</span>())
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">unameos</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/^\s*linux/i</span>)
+                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-constant">Linux</span>.<span class="ruby-identifier">new</span>())
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">inform</span>(<span class="ruby-value str">'debug'</span>, <span class="ruby-value str">&quot;Unknown platform (by uname)&quot;</span>)
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">nil</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

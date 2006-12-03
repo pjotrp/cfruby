@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>open (Cfruby::FileEdit)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileedit.rb, line 571</span>
+                <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FileEdit</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">mode</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;Editing \&quot;#{filename}\&quot;&quot;</span>) {
+                                <span class="ruby-identifier">newfile</span> = <span class="ruby-constant">Tempfile</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">'fileedit'</span>)
+                                <span class="ruby-identifier">newfile</span>.<span class="ruby-identifier">close</span>(<span class="ruby-keyword kw">false</span>)
+                                
+                                <span class="ruby-comment cmt"># attempt to chown the temp file - and set move based on our ability to do so</span>
+                                <span class="ruby-identifier">move</span> = <span class="ruby-keyword kw">false</span>
+                                <span class="ruby-keyword kw">begin</span>
+                                        <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">chown</span>(<span class="ruby-identifier">newfile</span>.<span class="ruby-identifier">path</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">uid</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">gid</span>)
+                                        <span class="ruby-identifier">move</span> = <span class="ruby-keyword kw">true</span>
+                                <span class="ruby-keyword kw">rescue</span>
+                                        <span class="ruby-comment cmt"># we failed - do nothing</span>
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-comment cmt"># chmod the temp file</span>
+                                <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">chmod</span>(<span class="ruby-identifier">newfile</span>.<span class="ruby-identifier">path</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">stat</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">mode</span>)
+                                
+                                <span class="ruby-identifier">buffer</span> = <span class="ruby-value str">''</span>
+                                <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">RDONLY</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">orig</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">newfile</span>.<span class="ruby-identifier">path</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">WRONLY</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">TRUNC</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">copy</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-keyword kw">while</span>(<span class="ruby-identifier">orig</span>.<span class="ruby-identifier">read</span>(<span class="ruby-value">2048</span>, <span class="ruby-identifier">buffer</span>) <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                        <span class="ruby-identifier">copy</span>.<span class="ruby-identifier">write</span>(<span class="ruby-identifier">buffer</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                        }
+                                }
+
+                                <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">newfile</span>.<span class="ruby-identifier">path</span>, <span class="ruby-identifier">mode</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">fp</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-keyword kw">yield</span>(<span class="ruby-identifier">fp</span>)
+                                }
+
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">Checksum</span><span class="ruby-operator">::</span><span class="ruby-constant">Checksum</span>.<span class="ruby-identifier">get_checksums</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">sha1</span> <span class="ruby-operator">!=</span> <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">Checksum</span><span class="ruby-operator">::</span><span class="ruby-constant">Checksum</span>.<span class="ruby-identifier">get_checksums</span>(<span class="ruby-identifier">newfile</span>.<span class="ruby-identifier">path</span>).<span class="ruby-identifier">sha1</span>)
+                                        <span class="ruby-comment cmt"># backup the file</span>
+                                        <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">backup</span>(<span class="ruby-identifier">filename</span>)
+                                        
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">move</span>)
+                                                <span class="ruby-constant">FileOps</span>.<span class="ruby-identifier">move</span>(<span class="ruby-identifier">newfile</span>.<span class="ruby-identifier">path</span>, <span class="ruby-identifier">filename</span>, <span class="ruby-identifier">:force</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword kw">true</span>, <span class="ruby-identifier">:preserve</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword kw">true</span>)
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">newfile</span>.<span class="ruby-identifier">path</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">RDONLY</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">orig</span><span class="ruby-operator">|</span>
+                                                        <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">WRONLY</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">TRUNC</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">copy</span><span class="ruby-operator">|</span>
+                                                                <span class="ruby-keyword kw">while</span>(<span class="ruby-identifier">orig</span>.<span class="ruby-identifier">read</span>(<span class="ruby-value">2048</span>, <span class="ruby-identifier">buffer</span>) <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                                        <span class="ruby-identifier">copy</span>.<span class="ruby-identifier">write</span>(<span class="ruby-identifier">buffer</span>)
+                                                                <span class="ruby-keyword kw">end</span>
+                                                        }
+                                                }
+                                        <span class="ruby-keyword kw">end</span>
+                                        
+                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">true</span>)
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-value str">&quot;unchanged&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+                        }
+                        
+                        <span class="ruby-keyword kw">return</span>(<span class="ruby-keyword kw">false</span>)
+                <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>handle_message (Cfruby::Script::Observer)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File cfrubyscript.rb, line 278</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">handle_message</span>(<span class="ruby-identifier">message</span>)
+                                <span class="ruby-identifier">messagelevel</span> = <span class="ruby-identifier">message</span>.<span class="ruby-identifier">type</span>
+
+                                <span class="ruby-comment cmt"># increase the level of the message based on the call depth if it is info or higher</span>
+                                <span class="ruby-comment cmt"># and it is a finished attempt</span>
+                                <span class="ruby-identifier">currentlevel</span> = <span class="ruby-ivar">@levelmap</span>[<span class="ruby-identifier">message</span>.<span class="ruby-identifier">type</span>].<span class="ruby-identifier">to_i</span>()
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">message</span>.<span class="ruby-identifier">tags</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'attemptdone'</span>))
+                                        <span class="ruby-identifier">bumplevel</span> = <span class="ruby-identifier">calculate_bump</span>(<span class="ruby-identifier">message</span>.<span class="ruby-identifier">caller</span>) <span class="ruby-operator">-</span> <span class="ruby-value">1</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">bumplevel</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>)
+                                                <span class="ruby-identifier">newlevel</span> = <span class="ruby-identifier">currentlevel</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">bumplevel</span>
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newlevel</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">4</span>)
+                                                        <span class="ruby-identifier">messagelevel</span> = <span class="ruby-value str">'debug'</span>
+                                                <span class="ruby-keyword kw">else</span>
+                                                        <span class="ruby-identifier">messagelevel</span> = <span class="ruby-ivar">@reverselevelmap</span>[<span class="ruby-identifier">newlevel</span>] 
+                                                <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-ivar">@level</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">messagelevel</span>))
+                                        <span class="ruby-ivar">@logger</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot;#{Time.now.strftime(&quot;%Y-%m-%d %H:%M&quot;)} - (#{messagelevel}) #{message.message}\n&quot;</span>
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-comment cmt"># handle install messages special-like</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">message</span>.<span class="ruby-identifier">tags</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">'install'</span>) <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">message</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'intention'</span>)
+                                        <span class="ruby-ivar">@logger</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot;#{Time.now.strftime(&quot;%Y-%m-%d %H:%M&quot;)} - (#{message.type}) #{message.message}\n&quot;</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">message</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'exception'</span>)
+                                        <span class="ruby-ivar">@errlogger</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot;#{Time.now.strftime(&quot;%Y-%m-%d %H:%M&quot;)} - (#{message.type}) #{message.message}\n&quot;</span>
+                                <span class="ruby-keyword kw">end</span>
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

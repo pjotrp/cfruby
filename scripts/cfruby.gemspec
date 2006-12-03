@@ -1,8 +1,10 @@
+p $:
+
 require 'rubygems'
 
 spec = Gem::Specification.new do |s|
 	s.name = 'cfruby'
-	s.version = "0.9.6"
+	s.version = "1.0"
 	s.platform = Gem::Platform::RUBY
 	s.summary = "A collection of modules, classes, and tools for system maintenance and configuration"
 	s.description = "Cfruby provides a large array of helpful modules, classes, and tools for simple, powerful, cross platform system maintenance"

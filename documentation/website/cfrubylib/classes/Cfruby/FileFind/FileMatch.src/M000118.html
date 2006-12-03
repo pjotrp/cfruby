@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>convertsize (Cfruby::FileFind::FileMatch)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File filefind.rb, line 207</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">convertsize</span>(<span class="ruby-identifier">str</span>)
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">str</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Numeric</span>))
+                                        <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">str</span>)
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-identifier">str</span>.<span class="ruby-identifier">strip!</span>()
+                                <span class="ruby-identifier">regex</span> = <span class="ruby-regexp re">/^([0-9]+(?:\.[0-9]+)?)\s*([gmk])b?$/i</span>
+                                <span class="ruby-identifier">match</span> = <span class="ruby-identifier">regex</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">str</span>)
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">match</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;Unable to parse size of \&quot;#{str}\&quot;&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-identifier">size</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_f</span>()
+                                
+                                <span class="ruby-keyword kw">case</span>(<span class="ruby-identifier">match</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">downcase</span>())
+                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'g'</span>)
+                                        <span class="ruby-identifier">size</span> = <span class="ruby-identifier">size</span> <span class="ruby-operator">*</span> <span class="ruby-value">1024</span> <span class="ruby-operator">*</span> <span class="ruby-value">1024</span> <span class="ruby-operator">*</span> <span class="ruby-value">1024</span>
+                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'m'</span>)
+                                        <span class="ruby-identifier">size</span> = <span class="ruby-identifier">size</span> <span class="ruby-operator">*</span> <span class="ruby-value">1024</span> <span class="ruby-operator">*</span> <span class="ruby-value">1024</span>
+                                <span class="ruby-keyword kw">when</span>(<span class="ruby-value str">'k'</span>)
+                                        <span class="ruby-identifier">size</span> = <span class="ruby-identifier">size</span> <span class="ruby-operator">*</span> <span class="ruby-value">1024</span>
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">size</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

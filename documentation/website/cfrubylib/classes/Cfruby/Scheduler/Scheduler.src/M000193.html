@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>unschedule (Cfruby::Scheduler::Scheduler)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File scheduler.rb, line 48</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">unschedule</span>(<span class="ruby-identifier">regex</span>, <span class="ruby-identifier">user</span>=<span class="ruby-value str">'root'</span>)
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">regex</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Array</span>))
+                                        <span class="ruby-identifier">regex</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">r</span><span class="ruby-operator">|</span>
+                                                <span class="ruby-identifier">unschedule</span>(<span class="ruby-identifier">r</span>)
+                                        }
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">regex</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">String</span>)
+                                        <span class="ruby-identifier">regex</span> = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">escape</span>(<span class="ruby-constant">String</span>))
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;removing \&quot;#{regex.source}\&quot; from crontab&quot;</span>, <span class="ruby-value str">'nonreversible'</span>, <span class="ruby-value str">'destructive'</span>) {
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">regex</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Regexp</span>))
+                                                <span class="ruby-identifier">regex</span> = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">escape</span>(<span class="ruby-identifier">regex</span>.<span class="ruby-identifier">to_s</span>))
+                                        <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-identifier">tmp</span> = <span class="ruby-constant">Tempfile</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">'cfruby-cron'</span>)
+                                        <span class="ruby-identifier">output</span> = <span class="ruby-constant">Exec</span>.<span class="ruby-identifier">exec</span>(<span class="ruby-value str">'crontab -u '</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">user</span> <span class="ruby-operator">+</span> <span class="ruby-value str">' -l &gt; '</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">tmp</span>.<span class="ruby-identifier">path</span>)
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">output</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">output</span>[<span class="ruby-value">1</span>][<span class="ruby-value">0</span>] <span class="ruby-operator">!~</span> <span class="ruby-regexp re">/no crontab for/</span>)
+                                                <span class="ruby-identifier">raise</span>(<span class="ruby-constant">SchedulerError</span>, <span class="ruby-node">&quot;Unable to remove \&quot;#{regex.source()}\&quot; from schedule - #{output[1][1].strip()}&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-identifier">added</span> = <span class="ruby-constant">FileEdit</span>.<span class="ruby-identifier">file_must_not_contain</span>(<span class="ruby-identifier">tmp</span>.<span class="ruby-identifier">path</span>, <span class="ruby-identifier">regex</span>)
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">added</span>)
+                                                <span class="ruby-identifier">output</span> = <span class="ruby-constant">Exec</span>.<span class="ruby-identifier">exec</span>(<span class="ruby-node">&quot;crontab #{Cfruby::Exec.shellescape(tmp.path)}&quot;</span>)
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">output</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>)
+                                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">SchedulerError</span>, <span class="ruby-node">&quot;Unable to remove \&quot;#{regex.source()}\&quot; from schedule - #{output[1][1].strip()}&quot;</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-value str">&quot;No changes made&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>processes (Cfruby::Processes::ProcessManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File processes.rb, line 91</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">processes</span>()
+                                <span class="ruby-identifier">processes</span> = <span class="ruby-constant">ProcessList</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-identifier">processlist</span> = <span class="ruby-value">`ps auxww`</span>
+                                <span class="ruby-identifier">processregex</span> = <span class="ruby-regexp re">/^(\S+)\s+([0-9]+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)$/</span>
+                                <span class="ruby-identifier">processlist</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-identifier">line</span>.<span class="ruby-identifier">strip!</span>()
+                                        <span class="ruby-identifier">match</span> = <span class="ruby-identifier">processregex</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">line</span>)
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">match</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-identifier">info</span> = <span class="ruby-constant">ProcessInfo</span>.<span class="ruby-identifier">new</span>()
+                                                <span class="ruby-identifier">info</span>.<span class="ruby-identifier">username</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">1</span>]
+                                                <span class="ruby-identifier">info</span>.<span class="ruby-identifier">pid</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_i</span>()
+                                                <span class="ruby-identifier">info</span>.<span class="ruby-identifier">flags</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">8</span>]
+                                                <span class="ruby-identifier">info</span>.<span class="ruby-identifier">starttime</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">9</span>]
+                                                <span class="ruby-identifier">info</span>.<span class="ruby-identifier">runtime</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">10</span>]
+                                                <span class="ruby-identifier">info</span>.<span class="ruby-identifier">program</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">11</span>]
+                                                <span class="ruby-identifier">info</span>.<span class="ruby-identifier">cpu</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">3</span>].<span class="ruby-identifier">to_f</span>()
+                                                <span class="ruby-identifier">info</span>.<span class="ruby-identifier">mem</span> = <span class="ruby-identifier">match</span>[<span class="ruby-value">4</span>].<span class="ruby-identifier">to_f</span>()
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">processes</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">info</span>.<span class="ruby-identifier">pid</span>))
+                                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">DuplicateProcessError</span>, <span class="ruby-node">&quot;Process #{info.pid} appeared twice in the process listing&quot;</span>)
+                                                <span class="ruby-keyword kw">end</span>
+                                                <span class="ruby-identifier">processes</span>[<span class="ruby-identifier">info</span>.<span class="ruby-identifier">pid</span>] = <span class="ruby-identifier">info</span>
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                                
+                                <span class="ruby-keyword kw">return</span>(<span class="ruby-identifier">processes</span>)
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

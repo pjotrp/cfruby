@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>copy (Cfruby::FileOps::HTTPFileCommand)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileops.rb, line 266</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">copy</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">targetdir</span>, <span class="ruby-identifier">options</span> = {})
+                                <span class="ruby-identifier">flags</span> = <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:flags</span>])
+                                        <span class="ruby-identifier">flags</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:flags</span>]
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-identifier">wgetcommand</span>=<span class="ruby-node">&quot;cd #{targetdir} &amp;&amp; &quot;</span>
+
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:recursive</span>])
+                                        <span class="ruby-identifier">wgetcommand</span>=<span class="ruby-identifier">wgetcommand</span> <span class="ruby-operator">+</span> <span class="ruby-node">&quot;wget -q -np -nH -r -l inf --cut-dirs=#{filename.split(/\//).length} #{flags} http://#{filename}&quot;</span>
+                                <span class="ruby-keyword kw">else</span>
+                                        <span class="ruby-identifier">wgetcommand</span>=<span class="ruby-identifier">wgetcommand</span> <span class="ruby-operator">+</span> <span class="ruby-node">&quot;wget -q #{flags} http://#{filename}&quot;</span>
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-identifier">wgetcommand</span>, <span class="ruby-value str">'destructive'</span>, <span class="ruby-value str">'unknown'</span>) {
+                                        <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">Exec</span>.<span class="ruby-identifier">exec</span>(<span class="ruby-identifier">wgetcommand</span>)
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

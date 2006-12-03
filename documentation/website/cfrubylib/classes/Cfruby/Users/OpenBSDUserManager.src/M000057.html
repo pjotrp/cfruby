@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>add_user (Cfruby::Users::OpenBSDUserManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File osmodules/openbsd.rb, line 65</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">add_user</span>(<span class="ruby-identifier">user</span>, <span class="ruby-identifier">password</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">uid</span>=<span class="ruby-keyword kw">nil</span>)
+                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt</span>(<span class="ruby-node">&quot;Adding user \&quot;#{user.to_s}\&quot;&quot;</span>, <span class="ruby-value str">'destructive'</span>) {
+                                        <span class="ruby-identifier">newuser</span> = <span class="ruby-keyword kw">nil</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">user</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:username</span>))
+                                                <span class="ruby-identifier">newuser</span> = <span class="ruby-constant">UserInfo</span>.<span class="ruby-identifier">new</span>()
+                                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">username</span> = <span class="ruby-identifier">user</span>.<span class="ruby-identifier">to_s</span>
+                                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">uid</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                        <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">uid</span> = <span class="ruby-identifier">uid</span>.<span class="ruby-identifier">to_i</span>()
+                                                <span class="ruby-keyword kw">end</span>
+                                                <span class="ruby-comment cmt"># FIXME: Handling the addition of new users needs to be better than this</span>
+                                                <span class="ruby-comment cmt"># FIXME: Assuming that /home/&lt;username&gt; is the dir is silly, we should use -m somehow</span>
+                                                <span class="ruby-comment cmt"># FIXME: but still make it overridable.</span>
+                                                <span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">homedir</span> = <span class="ruby-node">&quot;/home/#{newuser.username}&quot;</span>
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-identifier">newuser</span> = <span class="ruby-identifier">user</span>
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">users</span>[<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">username</span>])
+                                                <span class="ruby-constant">Cfruby</span>.<span class="ruby-identifier">controller</span>.<span class="ruby-identifier">attempt_abort</span>(<span class="ruby-node">&quot;user \&quot;#{user.to_s}\&quot; already exists&quot;</span>)
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">uid</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-node">`/usr/sbin/pw useradd #{shellescape(newuser.username)}`</span>
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-node">`/usr/sbin/pw useradd #{shellescape(newuser.username)} -u #{uid.to_i()}`</span>
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">gid</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-node">`/usr/sbin/pw usermod #{shellescape(newuser.username)} -g #{newuser.gid}`</span>
+                                        <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">fullname</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-node">`/usr/sbin/pw usermod #{shellescape(newuser.username)} -n '#{shellescape(newuser.fullname)}'`</span>
+                                        <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">shell</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-node">`/usr/sbin/pw usermod #{shellescape(newuser.username)} -s #{newuser.shell}`</span>
+                                        <span class="ruby-keyword kw">end</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">homedir</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-node">`/usr/sbin/pw usermod #{shellescape(newuser.username)} -d '#{shellescape(newuser.homedir)}' -m`</span>
+                                        <span class="ruby-keyword kw">end</span>
+
+                                        <span class="ruby-comment cmt"># set the password</span>
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">password</span> <span class="ruby-operator">!=</span> <span class="ruby-keyword kw">nil</span>)
+                                                <span class="ruby-identifier">set_password</span>(<span class="ruby-identifier">newuser</span>.<span class="ruby-identifier">username</span>, <span class="ruby-identifier">password</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>execute (CfYAML)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File cfyaml.rb, line 178</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-constant">CfYAML</span>.<span class="ruby-identifier">execute</span>(<span class="ruby-identifier">hash</span>)
+                <span class="ruby-identifier">commands</span> = <span class="ruby-identifier">hash</span>[<span class="ruby-value str">'execute'</span>]
+                <span class="ruby-keyword kw">if</span>(<span class="ruby-operator">!</span><span class="ruby-identifier">commands</span>.<span class="ruby-identifier">kind_of?</span>(<span class="ruby-constant">Array</span>))
+                        <span class="ruby-identifier">commands</span> = <span class="ruby-constant">Array</span>.[](<span class="ruby-identifier">commands</span>)
+                <span class="ruby-keyword kw">end</span>
+                <span class="ruby-identifier">user</span> = <span class="ruby-identifier">hash</span>[<span class="ruby-value str">'user'</span>]
+                <span class="ruby-identifier">commands</span>.<span class="ruby-identifier">each</span>() { <span class="ruby-operator">|</span><span class="ruby-identifier">command</span><span class="ruby-operator">|</span>
+                        <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">hash</span>[<span class="ruby-value str">'useshell'</span>])
+                          <span class="ruby-identifier">arguments</span> = <span class="ruby-identifier">hash</span>[<span class="ruby-value str">'arguments'</span>] <span class="ruby-operator">|</span> <span class="ruby-constant">Array</span>.<span class="ruby-identifier">new</span>()
+                                <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">Exec</span>.<span class="ruby-identifier">shellexec</span>(<span class="ruby-identifier">command</span>, <span class="ruby-identifier">arguments</span>)
+                        <span class="ruby-keyword kw">else</span>
+                                <span class="ruby-constant">Cfruby</span><span class="ruby-operator">::</span><span class="ruby-constant">Exec</span>.<span class="ruby-identifier">exec</span>(<span class="ruby-identifier">command</span>, <span class="ruby-identifier">user</span>)
+                        <span class="ruby-keyword kw">end</span>
+                }
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

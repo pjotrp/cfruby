@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>copy (Cfruby::FileOps::LocalFileCommand)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File fileops.rb, line 125</span>
+                        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">copy</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">newfilename</span>, <span class="ruby-identifier">options</span> = {})
+                                <span class="ruby-comment cmt"># set default options</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:force</span>] <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>)
+                                        <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:force</span>] = <span class="ruby-keyword kw">true</span>
+                                <span class="ruby-keyword kw">end</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:onlyonchange</span>])
+                                        <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:force</span>] = <span class="ruby-keyword kw">true</span>
+                                <span class="ruby-keyword kw">end</span>
+                                
+                                <span class="ruby-comment cmt"># first, a basic check that filename exists somehow</span>
+                                <span class="ruby-keyword kw">if</span>(<span class="ruby-constant">Dir</span>.<span class="ruby-identifier">glob</span>(<span class="ruby-identifier">filename</span>).<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>)
+                                        <span class="ruby-identifier">raise</span>(<span class="ruby-constant">FileOpsFileExistError</span>, <span class="ruby-node">&quot;\&quot;#{filename}\&quot; does not exist&quot;</span>)
+                                <span class="ruby-keyword kw">end</span>
+
+                                <span class="ruby-comment cmt"># get the base directory of the copy</span>
+                                <span class="ruby-identifier">basedir</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">dirname</span>(<span class="ruby-constant">Pathname</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Dir</span>.<span class="ruby-identifier">glob</span>(<span class="ruby-identifier">filename</span>)[<span class="ruby-value">0</span>]).<span class="ruby-identifier">realpath</span>.<span class="ruby-identifier">to_s</span>)
+                                <span class="ruby-identifier">basedirregex</span> = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">escape</span>(<span class="ruby-identifier">basedir</span>) <span class="ruby-operator">+</span> <span class="ruby-value str">&quot;/?(.*)$&quot;</span>)
+                        
+                                <span class="ruby-comment cmt"># use file find to get a list of files to copy</span>
+                                <span class="ruby-constant">FileFind</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">options</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">filename</span><span class="ruby-operator">|</span>
+                                        <span class="ruby-comment cmt"># copy each file after adjusting for the base directories</span>
+                                        <span class="ruby-identifier">basename</span> = <span class="ruby-identifier">basedirregex</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">filename</span>)[<span class="ruby-value">1</span>]
+                                        <span class="ruby-keyword kw">if</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">newfilename</span>))
+                                                <span class="ruby-identifier">copy_single</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">newfilename</span> <span class="ruby-operator">+</span> <span class="ruby-node">&quot;/#{basename}&quot;</span>, <span class="ruby-identifier">options</span>)
+                                        <span class="ruby-keyword kw">else</span>
+                                                <span class="ruby-identifier">copy_single</span>(<span class="ruby-identifier">filename</span>, <span class="ruby-identifier">newfilename</span>, <span class="ruby-identifier">options</span>)
+                                        <span class="ruby-keyword kw">end</span>
+                                }
+                        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>
