@@ -36,6 +36,7 @@ copy:
 	/etc/cups/printers.conf dest=@hostspec+'printers.conf' m=600 backup=false
 	/etc/X11/XF86Config dest=@hostspec+'XF86Config' m=600 backup=false
 	/etc/X11/XF86Config-4 dest=@hostspec+'XF86Config-4' m=600 backup=false
+	/etc/X11/xorg.conf dest=@hostspec+'xorg.conf' m=600 backup=false
 	/var/spool/cron/crontabs/root dest=@hostspec+'crontab_root' m=600 backup=false
 	/etc/wlan/wlan.conf dest=@hostspec+'wlan.conf' m=600 backup=false
 
