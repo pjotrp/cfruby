@@ -2,7 +2,7 @@
 #
 # This Cfruby script is used in production systems.
 
-package 'ssh','openssh'
+package 'ssh','openssh','openssh-server'
 
 control:
 
