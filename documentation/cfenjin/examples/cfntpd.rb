@@ -23,5 +23,5 @@ editfiles:
 
 shellcommands:
 
-	`/etc/init.d/ntp-server restart`
+	`/etc/init.d/ntp restart`
 	
