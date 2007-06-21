@@ -659,6 +659,33 @@ module Cfruby
 				if(group and !group.kind_of?(Integer))
 					group = usermanager.get_gid(group)
 				end
+        Cfruby::FileFind.find(basedir, options) { |filename|
+          if(FileOps.chown(filename, owner, group))
+            changemade = true
+          end
+          if(mode!=nil and FileOps.chmod(filename, mode))
+            changemade = true
+          end
+        }
+			}
+			
+			return(changemade)
+		end
+
+    # Same as FileOps.chown_mod, but uses direct shell commands. It 
+    # can be invoked from Cfenjin by using the shell=true attribute
+    # with the file command.
+    #
+		def FileOps.shell_chown_mod(basedir, owner, group, mode, options = {})
+		  changemade = false
+			Cfruby.controller.attempt("changing ownership and mode of matching files in \"#{basedir}\"", 'destructive') {
+				usermanager = Cfruby::OS::OSFactory.new.get_os.get_user_manager()
+				if(owner and !owner.kind_of?(Integer))
+					owner = usermanager.get_uid(owner)
+				end
+				if(group and !group.kind_of?(Integer))
+					group = usermanager.get_gid(group)
+				end
 
         # Some interesting timings:
         #
@@ -686,6 +713,14 @@ module Cfruby
         # real    1m50.561s
         # user    0m24.702s
         # sys     1m23.837s
+        #
+        # Smart use of the shell function:
+        #
+        # real    0m34.369s
+        # user    0m11.841s
+        # sys     0m18.857s
+        #
+        # A runtime reduction of 80%
         #
         # Opting for the fastest method now - Kernel.system is slightly
         # safer as it returns an error code.

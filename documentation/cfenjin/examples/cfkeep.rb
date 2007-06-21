@@ -25,7 +25,7 @@ directories:
 files:
 
 	@destdir m=700 o=@realuser act=fixdirs rec=inf
-	@destdir m=600 o=@realuser act=fixplain rec=inf
+	@destdir m=600 o=@realuser act=fixplain rec=inf shell=true
 	
 copy:
 

@@ -98,7 +98,12 @@ module CfrubyRuntime
 			(owner,group,mode) = pop_options(options,:owner,:group,:mode)
 			begin
 					# p [filename,owner,group,mode,options]
-					Cfruby::FileOps.chown_mod filename,owner,group,mode,options
+          if options[:shell]
+				  	Cfruby::FileOps.shell_chown_mod filename,owner,group,mode,options
+          else
+					  Cfruby::FileOps.chown_mod filename,owner,group,mode,options
+          end
+          options[:shell] = nil
 			rescue Cfruby::FileFind::FileExistError
 				Cfruby.controller.inform('verbose', "Can not chmod on non-existing file #{filename}")
 			end
