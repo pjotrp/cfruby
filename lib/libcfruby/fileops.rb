@@ -33,6 +33,10 @@ module Cfruby
 		class FileOpsFileExistError < FileOpsError
 		end
 		
+		# Raised when a system command fails
+		class FileOpsSystemCommandError < FileOpsError
+		end
+		
 		# Raised when a move or copy will overwrite a file and :force => false
 		class FileOpsOverwriteError < FileOpsError
 		end
@@ -656,14 +660,73 @@ module Cfruby
 					group = usermanager.get_gid(group)
 				end
 
-				Cfruby::FileFind.find(basedir, options) { |filename|
-					if(FileOps.chown(filename, owner, group))
-					  changemade = true
-				  end
-					if(mode!=nil and FileOps.chmod(filename, mode))
-					  changemade = true
-				  end
-				}
+        # Some interesting timings:
+        #
+        # Using shell `cmd`:
+        # real    1m12.693s
+        # user    0m17.009s
+        # sys     0m53.631s
+        #
+        # Using shell `cmd` using filesonly:
+        # real    0m50.606s
+        # user    0m15.649s
+        # sys     0m32.918s
+        #
+        # Using Kernel.system:
+        # real    1m33.448s
+        # user    0m20.549s
+        # sys     1m10.764s
+        #
+        # Using Kernel system 'filesonly':
+        # real    0m58.321s
+        # user    0m17.189s
+        # sys     0m39.066s
+        #
+        # Using original Ruby code:
+        # real    1m50.561s
+        # user    0m24.702s
+        # sys     1m23.837s
+        #
+        # Opting for the fastest method now - Kernel.system is slightly
+        # safer as it returns an error code.
+        #
+        if (options[:filesonly] and options[:recursive] and File.exist?(basedir))
+          # Speed up this specific case by executing a shell command
+          if not File.executable?('/bin/chown') or not File.executable?('/bin/chmod') or not File.executable?('/usr/bin/find')
+            raise(FileOpsFileExistError,"Problem finding chmod/chown/find executables")
+          end
+          type = 'f'
+          type = 'd' if options[:directoriesonly]
+          cmd = "/bin/chown #{owner}"
+          cmd += ".#{group}" if group
+          cmd = "/bin/chgrp #{group}" if !owner
+          cmd = "/usr/bin/find -type #{type} -exec #{cmd} \\{\\} \\;"
+					Cfruby.controller.inform('verbose', cmd)
+          `#{cmd}`
+          #if not Kernel.system(cmd)
+          #  raise FileOpsSystemCommandError,'Command failed '+cmd
+          #end
+          if mode != nil
+            mode = sprintf("%o",mode) if !mode.kind_of?(String)
+            cmd = "/usr/bin/find -type #{type} -exec /bin/chmod #{mode} \\{\\} \\;"
+					  Cfruby.controller.inform('verbose', cmd)
+            `#{cmd}`
+            #Kernel.system(cmd)
+            #if not Kernel.system(cmd)
+            #  raise FileOpsSystemCommandError,'Command failed '+cmd
+            #end
+          end
+          changemade = true # no way to test for that here
+        else
+          Cfruby::FileFind.find(basedir, options) { |filename|
+            if(FileOps.chown(filename, owner, group))
+              changemade = true
+            end
+            if(mode!=nil and FileOps.chmod(filename, mode))
+              changemade = true
+            end
+				  }
+        end
 			}
 			
 			return(changemade)
@@ -686,7 +749,8 @@ module Cfruby
 		end
 
 
-		# Chown's matching files.  Returns true if a change was made, false otherwise.
+		# Chown's matching files in +basedir+.  Returns true if a change 
+    # was made, false otherwise.
 		def FileOps.chown(basedir, owner, group=nil, options = {})
 		  changemade = false
 			usermanager = Cfruby::OS::OSFactory.new.get_os.get_user_manager()
