@@ -1,4 +1,8 @@
 # Stores a code snippet
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfenjin/cfrubyruntime'
 

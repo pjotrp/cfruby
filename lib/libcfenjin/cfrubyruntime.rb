@@ -4,6 +4,10 @@
 # This module gets mixed in by the Parser class and requires a definition
 # of +@cf+ pointing to a +Cfp_Stat+ class (which can be passed into
 # the parser class at initialisation)
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfruby/fileops'
 require 'libcfenjin/cfp_editfilecached'
@@ -148,4 +152,3 @@ module CfrubyRuntime
 	end
 
 end
-

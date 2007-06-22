@@ -1,6 +1,10 @@
 # This module contains the logic for parsing Cfruby style syntax -
 # including the addition of quotes etc. The actual implementation of
 # these methods can be found in cfrubyruntime.rb
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 module Cfruby
 

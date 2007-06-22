@@ -1,6 +1,10 @@
 # The Parser loads a Cfruby script and converts the Cfengine-style
 # syntax to plain Ruby. Futhermore it stores all the code pieces
 # into the +codetree+.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfenjin/cfrubyruntime'
 require 'libcfenjin/cfp_editfilecached'

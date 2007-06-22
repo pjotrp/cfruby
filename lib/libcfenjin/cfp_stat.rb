@@ -1,5 +1,9 @@
 # This class maintains the state of the Cfruby engine at runtime - i.e.
 # it holds a pointer to the logger etc.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfruby/cfruby'
 require 'libcfruby/os'

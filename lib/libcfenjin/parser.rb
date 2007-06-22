@@ -1,4 +1,8 @@
 # Offers direct running of Cfruby commands
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfenjin/cfrubyruntime'
 require 'libcfenjin/cfp_classes'

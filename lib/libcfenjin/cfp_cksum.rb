@@ -1,6 +1,10 @@
 # This class differs from the standard cfrubylib edition - as it is aimed
 # at checking the checksum of a buffer/array - and allows for skipping
 # certain comments which get inserted by Cfruby itself(!)
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'md5'
 

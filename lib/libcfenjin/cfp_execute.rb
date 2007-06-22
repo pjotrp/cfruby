@@ -1,4 +1,8 @@
 # This class executes the Cfruby script code
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 module Cfruby
 

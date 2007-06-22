@@ -1,4 +1,8 @@
 # This class compiles the Cfruby script code, catches errors etc.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfenjin/cfp_translate'
 require 'libcfenjin/cfrubyruntime'

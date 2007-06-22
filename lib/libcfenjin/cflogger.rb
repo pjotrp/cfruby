@@ -1,9 +1,10 @@
-# Author:: David Powers
-# Copyright:: January, 2005
+# Author:: David Powers, Pjotr Prins
+# Copyright:: July 2007
 # License:: Ruby License
 #
 # A singleton implementation of the logger interface that by default logs nothing.  It is used in all
 # Cfruby library modules as a placeholder for a user-provided logger
+#
 
 module Cfruby
 	

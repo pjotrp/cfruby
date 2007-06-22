@@ -1,6 +1,10 @@
 # Translation class converts Cfengine-style syntax to plain (100%)
 # Ruby These methods are called from the compile step - and therefore
 # do not execute.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfenjin/parser'
 

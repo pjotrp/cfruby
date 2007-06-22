@@ -1,6 +1,10 @@
 # Manager class for the Cfruby engine loads all the scripts, parses
 # them into code snippets, compiles and executes. Normally invocation
 # happens in that order - see bin/cfruby for an example.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfenjin/cfp_codetree'
 require 'libcfenjin/cfp_parser'

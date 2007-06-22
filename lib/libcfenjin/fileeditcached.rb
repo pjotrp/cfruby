@@ -1,5 +1,9 @@
 # The cached version of file editing - only writes to disk when the file
 # changes.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 # require 'language/deepcopy'
 require 'libcfenjin/cfp_cksum'

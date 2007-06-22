@@ -1,3 +1,7 @@
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 module Cfruby
 

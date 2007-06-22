@@ -8,6 +8,10 @@
 # does the mapping (part of +Args+ module).
 #
 # To see some mappings at work visit ./test/test_parserlogic.rb
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 module Cfruby
 

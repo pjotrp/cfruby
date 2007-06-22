@@ -1,5 +1,9 @@
 # The Codetree class stores all Cfruby script snippets ordered by
 # filename, actionnumber and action name (e.g. 'site.rb',0,'control')
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 require 'libcfenjin/cfp_code'
 
