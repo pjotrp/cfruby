@@ -1,5 +1,9 @@
 # Example of copying a samba configuration file from the masterfiles
 # directory, and setting permissions
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 package 'samba'
 

@@ -2,6 +2,9 @@
 #
 # Warning: DO NOT USE THIS - it will overwrite your settings.
 #
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 # Force dry run
 

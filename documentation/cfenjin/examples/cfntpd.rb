@@ -3,6 +3,10 @@
 # Assumes $timeserver has been set in site.rb
 #
 # This Cfruby script is used in production systems.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 package 'ntp'
 

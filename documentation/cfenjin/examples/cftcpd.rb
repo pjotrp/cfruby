@@ -2,6 +2,10 @@
 # for the hosts listed in String $sshd_hosts
 #
 # This Cfruby script is used on production systems.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 package 'tcpd','tcp_wrappers'
 
@@ -22,4 +26,3 @@ editfiles:
 		f.Warning
 		f.AppendIfNoSuchLine "sshd: #{$sshd_hosts}" if $sshd_hosts != nil
 	end
-

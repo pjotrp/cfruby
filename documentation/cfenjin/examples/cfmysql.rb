@@ -1,4 +1,8 @@
 # An example for mysql configuration using Cfruby
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 package 'mysql'
 

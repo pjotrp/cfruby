@@ -10,6 +10,10 @@
 #
 #   --trace 1 (or 2 or 3)
 #   --verbose 1 (or 2 or 3)
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 control:
 
@@ -99,4 +103,3 @@ tidy:
 	@tmpdir rec=inf
 	# non existing file
 	/tmp/cftest1.txt
-

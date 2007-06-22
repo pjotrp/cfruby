@@ -9,6 +9,10 @@
 # Assumes $sitepath has been set in site.rb
 #
 # This Cfruby script is used in production systems.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 control:
 
@@ -48,4 +52,3 @@ copy:
 	
 		/etc/modules dest=@hostspec+'modules' m=600 backup=false
 		/etc/network/interfaces dest=@hostspec+'interfaces' m=600 backup=false
-

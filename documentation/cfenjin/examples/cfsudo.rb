@@ -3,6 +3,10 @@
 # 'sudo (u)mount' without a password.
 #
 # This Cfruby script is used on production systems.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 needpackage 'sudo'
 

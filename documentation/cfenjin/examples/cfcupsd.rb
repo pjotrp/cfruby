@@ -1,6 +1,10 @@
 # Configure cups, if it is installed
 #
 # This Cfruby script is used in production systems.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 package 'cupsys', 'cups'
 

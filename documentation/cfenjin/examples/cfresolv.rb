@@ -2,6 +2,10 @@
 # class. Note the $resolv_ns1 value has to be set.
 #
 # This Cfruby script is used in production systems.
+#
+# Author:: Pjotr Prins
+# Copyright:: July 2007
+# License:: Ruby License
 
 control:
 
