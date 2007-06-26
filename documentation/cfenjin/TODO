@@ -1,13 +1,17 @@
+== BUGS
 
-- Document Cfruby
-  - print shellcommands
-  - fix cfruby removes root dir
-  - fix cfruby copy permissions
-  . Add onchanged 
-  . print shellcommands ``
-  . stop services like cupsys, portmap, squid, inetd, nfs-kernel-server 
-  . Debian support for update-rc.d -f exim4 remove 
-	. upgrade some packages automatically (ssh, bind, postfix, clamav, spama)
+- copy function does not complain when the original file does not
+	exist
+
+== FEATURES
+
+- print shellcommands
+- fix cfruby removes root dir
+- fix cfruby copy permissions
+. Add onchanged 
+. stop services like cupsys, portmap, squid, inetd, nfs-kernel-server 
+. Debian support for update-rc.d -f exim4 remove 
+. upgrade some packages automatically (ssh, bind, postfix, clamav, spama)
 
 == Pjotr's Section (regarding the Cfruby parser):
 
