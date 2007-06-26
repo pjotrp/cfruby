@@ -1,5 +1,5 @@
 
-Cfruby/cfenjin 0.9.6 by Pjotr Prins and David Powers Copyright GPL (c) 2004-2005
+Cfruby/cfenjin 1.00-dev1 by Pjotr Prins and David Powers Copyright GPL (c) 2004-2007
 	class Cfenjindocumentationcfenjinexamplessiterb
 	include CfrubyRuntime
 		def initialize(cf,sourcepath,homepath,user)
@@ -19,6 +19,9 @@ Cfruby/cfenjin 0.9.6 by Pjotr Prins and David Powers Copyright GPL (c) 2004-2005
 			#
 			# Warning: DO NOT USE THIS - it will overwrite your settings.
 			#
+			# Author:: Pjotr Prins
+			# Copyright:: July 2007
+			# License:: Ruby License
 			
 			# Force dry run
 			
@@ -61,6 +64,10 @@ Cfruby/cfenjin 0.9.6 by Pjotr Prins and David Powers Copyright GPL (c) 2004-2005
 			# class. Note the $resolv_ns1 value has to be set.
 			#
 			# This Cfruby script is used in production systems.
+			#
+			# Author:: Pjotr Prins
+			# Copyright:: July 2007
+			# License:: Ruby License
 			
 		end
 	end

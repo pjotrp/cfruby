@@ -69,8 +69,11 @@ class Cfp_Code
 		end
 	end
 
+  # Converts the file path into a class name that is acceptable to Ruby
 	def classname
-		@fn.gsub(/\/|\./,'').capitalize
+    name = @fn
+    name = name.gsub(/[-]/,'_')
+		name.gsub(/\W/,'').capitalize
 	end
 
 	def methodname
