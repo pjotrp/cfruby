@@ -736,6 +736,7 @@ module Cfruby
           cmd += ".#{group}" if group
           cmd = "/bin/chgrp #{group}" if !owner
           cmd = "/usr/bin/find -type #{type} -exec #{cmd} \\{\\} \\;"
+          cmd = "cd #{basedir} ; #{cmd}"
 					Cfruby.controller.inform('verbose', cmd)
           `#{cmd}`
           #if not Kernel.system(cmd)
@@ -744,6 +745,7 @@ module Cfruby
           if mode != nil
             mode = sprintf("%o",mode) if !mode.kind_of?(String)
             cmd = "/usr/bin/find -type #{type} -exec /bin/chmod #{mode} \\{\\} \\;"
+            cmd = "cd #{basedir} ; #{cmd}"
 					  Cfruby.controller.inform('verbose', cmd)
             `#{cmd}`
             #Kernel.system(cmd)
