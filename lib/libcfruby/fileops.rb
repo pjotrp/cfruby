@@ -716,10 +716,10 @@ module Cfruby
         #
         # Smart use of the shell function:
         #
-        # real    0m34.369s
-        # user    0m11.841s
-        # sys     0m18.857s
-        #
+        # real    0m22.285s
+        # user    0m16.320s
+        # sys     0m2.950s
+
         # A runtime reduction of 80%
         #
         # Opting for the fastest method now - Kernel.system is slightly
