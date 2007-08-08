@@ -136,7 +136,7 @@ module CfrubyRuntime
 				end
 				Cfruby::FileOps.copy src,dest,map('copy',attrib)
 			else
-				Cfruby.controller.inform('verbose', "Failed to copy non-existing file #{src}")
+				Cfruby.controller.inform('info', "Failed to copy non-existing file #{src}")
 				raise "Failed to copy #{src}" if @cf.strict
 			end
 		end
