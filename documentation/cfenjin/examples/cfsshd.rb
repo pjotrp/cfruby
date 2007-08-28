@@ -37,8 +37,10 @@ editfiles:
 		@ef.ReplaceAllAppend "^AllowUsers[[:space:]]+.*","AllowUsers #{$sshd_users}" if $sshd_users
 
     sshd_keysonly::
+        @ef.ReplaceAllAppend "PasswordAuthentication[[:space:]]+[yY].*","PasswordAuthentication no"
         @ef.ReplaceAllAppend "UsePAM[[:space:]]+[yY].*","UsePAM no"
     !sshd_keysonly::
+        @ef.ReplaceAllAppend "PasswordAuthentication[[:space:]]+[nN].*","PasswordAuthentication yes"
         @ef.ReplaceAllAppend "UsePAM[[:space:]]+[nN].*","UsePAM yes"
 
     any::
