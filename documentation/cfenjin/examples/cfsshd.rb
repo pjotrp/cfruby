@@ -47,5 +47,6 @@ editfiles:
 shellcommands:
 
   if @ef.changed?
-	  $stderr.print "Notice: You should restart the sshd service!\n"
+	  $stderr.print "Notice: Reloading, but you should really restart the sshd service!\n"
+    print `/etc/init.d/ssh reload`
   end
