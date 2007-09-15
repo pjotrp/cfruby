@@ -70,7 +70,8 @@ module Cfruby
 			add(os['distribution'].downcase,@hostname) if os['distribution']
 			usermanager = os.get_user_manager()
 			add(usermanager.get_name(Process.euid()),@hostname)
-			add(usermanager.get_group(Process.egid()),@hostname)
+      group = usermanager.get_group(Process.egid())
+      add(group,@hostname) if group
       # ---- add classes passed through command line
       defines.each do | d |
         add(d,@hostname)
@@ -90,7 +91,7 @@ module Cfruby
 
 		def add clname, name
 			if clname == nil
-				logger.notify(VERBOSE_CRITICAL,"Trying to add nil class with #{name}")
+				dump nil," Trying to add nil class with <#{name}>"
 			end
       if !@undefines.include? clname
         cl = findclass(clname)
@@ -123,7 +124,7 @@ module Cfruby
 			a.include? @hostname
 		end
 
-		def dump logger=nil
+		def dump logger=nil, extra=nil
 			classes = []
 			each do | item, value |
 			  # p [ item,value ]
@@ -131,10 +132,11 @@ module Cfruby
 			end
 			# p classes
 			msg = 'Computer "'+@hostname+'" belongs to classes "'+classes.sort.join(', ')+'"'
-			if logger
+      msg += extra if extra
+			if logger != nil
 				logger.notify(VERBOSE_CRITICAL,msg)
 			else
-				print msg
+				raise msg
 			end
 		end
 
