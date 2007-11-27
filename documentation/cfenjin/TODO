@@ -2,6 +2,8 @@
 
 - copy function does not complain when the original file does not
 	exist
+- When overwriting a symbolic link cfenjin should notify rather than
+	stop executing
 
 == FEATURES
 
