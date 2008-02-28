@@ -43,6 +43,10 @@ module Cfruby
 			send 'form_'+action,*args
 		end
 
+    def dump
+      Cfp_parser::dump
+    end
+
 		# Run a links command using Cfruby style syntax - generalised by the
 		# method_missing method:
 		#

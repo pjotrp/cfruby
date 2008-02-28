@@ -53,7 +53,7 @@ module Cfruby
 
 		# Dumps code-snippets tree
 		def dump
-			@parser.dump
+			@cfp_parser.dump
 		end
 
 		# Dumps compiled snippets - see +Cfp_code.dump_compiled+
