@@ -21,6 +21,9 @@ module CfrubyRuntime
 	include Cfruby::Cfp_ClassAccessor
 	include Cfruby::Cfp_MapOptions
 
+	class VersionError < Cfruby::CfrubyError
+	end
+	
 	class PackageNotInstalledError < Cfruby::CfrubyError
 	end
 	
@@ -34,7 +37,13 @@ module CfrubyRuntime
 	def exit_script msg=''
 		raise ExitScript,'exit_script '+msg
 	end
-	
+
+  def cfenjin_version version, dev_version=nil
+    if (version > @cf.version) or (version == @cf.version and dev_version > @cf.dev_version)
+  		raise VersionError,"Cfenjin version #{version}-dev#{dev_version} required!"
+    end  
+  end
+
 	# This method is called from Cfruby script to make sure a package has
 	# been installed. If it is not on the system the rest of the script should
 	# not be executed.

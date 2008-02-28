@@ -27,7 +27,8 @@ module Cfruby
 
 		include Cfp_ClassAccessor
 
-		def initialize verbose=0, trace=0, dry_run=true, quiet_mode=false, strict=false, defines=[], undefines=[]
+		def initialize version=nil, verbose=0, trace=0, dry_run=true, quiet_mode=false, strict=false, defines=[], undefines=[]
+      @version      = version
 			@dry_run      = dry_run
 			@strict       = strict
 			@site         = Hash.new
@@ -68,6 +69,20 @@ module Cfruby
 		def distribution
 			@os['distribution']
 		end
+
+    def version
+      if @version and @version =~ /^(\d+\.\d+)/
+        return $1.to_f
+      end
+      1.0
+    end
+
+    def dev_version
+      if @version and @version =~ /dev(\d+)/
+        return $1.to_i
+      end
+      0
+    end
 
 		def showtrace
 			 @logger.trace TRACE_ON,"Trace=#{@logger.tracelevel}"
