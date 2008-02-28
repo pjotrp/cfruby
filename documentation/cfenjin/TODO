@@ -1,3 +1,6 @@
+- Add Tutorial section on extending Cfruby
+- Package Cfenjin in Nix
+
 == BUGS
 
 - copy function does not complain when the original file does not
@@ -9,7 +12,7 @@
 
 - print shellcommands
 - fix cfruby removes root dir
-- fix cfruby copy permissions
+x fix cfruby copy permissions
 . Add onchanged 
 . stop services like cupsys, portmap, squid, inetd, nfs-kernel-server 
 . Debian support for update-rc.d -f exim4 remove 
@@ -34,10 +37,8 @@ Notes:
 
 - allow for dash in user/group name (improve logic)
 
-- test cfruby copy standard uid=0?
+x test cfruby copy standard uid=0?
   mkdir, copy should take user=root?
-
-- Log cfenjin run to syslog
 
 ---------------------------------------------------------------------
 
