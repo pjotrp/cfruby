@@ -178,7 +178,7 @@ private
 					ret += '}'
 				end
 			end
-			return convert_global_variables(ret)
+		  convert_global_variables(ret)
 		end
 
 		# Convert '|', '&' and '!' operators to Ruby versions

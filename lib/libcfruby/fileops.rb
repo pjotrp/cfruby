@@ -732,13 +732,17 @@ module Cfruby
           end
           type = 'f'
           type = 'd' if options[:directoriesonly]
-          cmd = "/bin/chown #{owner}"
-          cmd += ".#{group}" if group
-          cmd = "/bin/chgrp #{group}" if !owner
-          cmd = "/usr/bin/find -type #{type} -exec #{cmd} \\{\\} \\;"
-          cmd = "cd #{basedir} ; #{cmd}"
-					Cfruby.controller.inform('verbose', cmd)
-          `#{cmd}`
+          if owner or group
+            cmd = "/bin/chown #{owner}"
+            if group
+              cmd += ".#{group}"
+              cmd = "/bin/chgrp #{group}" if !owner
+            end
+            cmd = "/usr/bin/find -type #{type} -exec #{cmd} \\{\\} \\;"
+            cmd = "cd #{basedir} ; #{cmd}"
+            Cfruby.controller.inform('verbose', cmd)
+            `#{cmd}`
+          end
           #if not Kernel.system(cmd)
           #  raise FileOpsSystemCommandError,'Command failed '+cmd
           #end

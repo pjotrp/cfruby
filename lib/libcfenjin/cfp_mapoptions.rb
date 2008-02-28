@@ -90,7 +90,7 @@ module Cfruby
 		EMPTY_OPT  = {}
 		# Shared file options
 		FILE_OPT   = { 
-			'mode' => [ :mode ], 'owner' => [ :owner ], 'group' => [ :group ],
+			'mode' => [ :mode ], 'owner' => [ :user ], 'group' => [ :group ],
       'shell' => [ :shell ]
 		}
     RECURSE_OPT = { 
