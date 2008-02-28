@@ -38,7 +38,7 @@ module Cfruby
           # don't set :recursive in this case
 					return { :depth => value.to_i }
 				end
-        return {} if value == nil or value.downcase == 'false'
+        return {} if value == nil 
         raise UnknownParameterError,"Unknown value '#{value}' for '#{name}'"
 			end
 
@@ -53,7 +53,7 @@ module Cfruby
 			end
 
       def Args.rmdirs name,value
-        if value!=nil and value.downcase =~ /^t/
+        if value!=nil and value==true
           return { :force => true }
         else
           return { :filesonly => true }

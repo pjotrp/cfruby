@@ -49,11 +49,11 @@ module CfrubyRuntime
 	# not be executed.
 	# 
 	def package *args
-			args.each do | name |
-				return if haspackage? name
-			end
-			@cf.cfp_logger.notify VERBOSE_MAJOR,"Skipping - package #{args.join(',')} not installed"
-		raise PackageNotInstalledError,'Package '+args.join(",")+' not installed'
+		args.each do | name |
+			return if haspackage? name
+		end
+		@cf.cfp_logger.notify VERBOSE_MAJOR,"Skipping - package #{args.join(',')} not installed"
+		raise PackageNotInstalledError.new('Package '+args.join(",")+' not installed')
 	end
 
 	# This method checks whether a package is installed - if not it will

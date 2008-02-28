@@ -134,7 +134,9 @@ private
 			line.strip =~ /^#{funcname}(\s|\()/
 		end
 
-		# Parse a Cf style line with options
+		# Parse a Cf style line with options - has some included logic for
+    # converting boolean from string, and quoting regex's
+    #
 		def cfline funcname,line
 			return line if remark? line
 			# ---- Return Ruby 'if' and 'end' intact
@@ -165,6 +167,9 @@ private
               elsif parameter == 'pattern'
                 # ---- patterns are always quoted
 								ret += "'#{parameter}'=>'#{value}',"
+              elsif value and (value.downcase == 'true' or value.downcase == 'false')
+                # ---- to boolean
+								ret += "'#{parameter}'=>#{value},"
 							else
 								# ---- is it a string or path?
 								value = "'#{value}'" if value !~ /^\d+$/ and value =~ /^(\w|-|\/)+$/
