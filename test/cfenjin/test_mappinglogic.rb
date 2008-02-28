@@ -29,22 +29,22 @@ class TC_CfrubyMappingLogic < Test::Unit::TestCase
 		# test simple
 		attrib = { 'o' => 'user', 'g' => 'users', 'm' => 0744 }
 		options = parser.map('files',attrib)
-		assert_equal({:group=>"users", :mode=>484, :owner=>"user"},options)
+		assert_equal({:group=>"users", :mode=>484, :user=>"user"},options)
 		# test mismatch
 		attrib = { 'o' => 'user', 'g' => 'users', 'm' => 0744, 'parameter' => 'unknown' }
 		assert_raise(Cfruby::Cfp_MapOptions::UnknownParameterError) { parser.map('files',attrib) }
 		# test pop options
-		(owner,group,mode) = parser.pop_options(options,:owner,:group,:mode)
-		assert_equal(["user", "users", 484, {}],[owner,group,mode,options])
+		(user,group,mode) = parser.pop_options(options,:user,:group,:mode)
+		assert_equal(["user", "users", 484, {}],[user,group,mode,options])
 
 		# Test with recursing and fixplain
 		attrib = { 'o' => 'user', 'g' => 'users', 'm' => 0744, 'rec'=>'inf', 'act'=>'fixplain' }
 		options = parser.map('files',attrib)
-		assert_equal({:group=>"users", :mode=>484, :recursive=>true, :owner=>"user", :filesonly=>true},options)
+		assert_equal({:group=>"users", :mode=>484, :recursive=>true, :user=>"user", :filesonly=>true},options)
 		# Test with recursing and fixdirs
 		attrib = { 'o' => 'user', 'g' => 'users', 'm' => 0744, 'rec'=>'inf', 'act'=>'fixdirs' }
 		options = parser.map('files',attrib)
-		assert_equal({:group=>"users", :mode=>484, :recursive=>true, :owner=>"user", :directoriesonly=>true},options)
+		assert_equal({:group=>"users", :mode=>484, :recursive=>true, :user=>"user", :directoriesonly=>true},options)
 	end
 
 	def test_complex

@@ -1,5 +1,5 @@
 
-Cfruby/cfenjin 1.00-dev1 by Pjotr Prins and David Powers Copyright GPL (c) 2004-2007
+Cfruby/cfenjin 1.00-dev3 by Pjotr Prins and David Powers Copyright GPL (c) 2004-2007
 	class Cfenjindocumentationcfenjinexamplescfsshdrb
 	include CfrubyRuntime
 		def initialize(cf,sourcepath,homepath,user)
@@ -66,9 +66,11 @@ Cfruby/cfenjin 1.00-dev1 by Pjotr Prins and David Powers Copyright GPL (c) 2004-
 					@ef.ReplaceAllAppend "^AllowUsers[[:space:]]+.*","AllowUsers #{$sshd_users}" if $sshd_users
 			
 			if isa?('sshd_keysonly')
+			        @ef.ReplaceAllAppend "PasswordAuthentication[[:space:]]+[yY].*","PasswordAuthentication no"
 			        @ef.ReplaceAllAppend "UsePAM[[:space:]]+[yY].*","UsePAM no"
 			  end # ---- !sshd_keysonly::
 			if not isa?('sshd_keysonly')
+			        @ef.ReplaceAllAppend "PasswordAuthentication[[:space:]]+[nN].*","PasswordAuthentication yes"
 			        @ef.ReplaceAllAppend "UsePAM[[:space:]]+[nN].*","UsePAM yes"
 			
 			  end # ---- any::
@@ -83,7 +85,8 @@ Cfruby/cfenjin 1.00-dev1 by Pjotr Prins and David Powers Copyright GPL (c) 2004-
 		def shellcommands4()
 			
 			  if @ef.changed?
-				  $stderr.print "Notice: You should restart the sshd service!\n"
+				  $stderr.print "Notice: Reloading, but you should really restart the sshd service!\n"
+			    print `/etc/init.d/ssh reload`
 			  end
 		end
 	end

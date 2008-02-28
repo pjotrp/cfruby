@@ -25,6 +25,12 @@ module Cfruby
       def Args.test(value,tests)
         return false if value == nil
         tests.each do | t |
+          if t == true
+            return true if value == true or value =~ /^[t](rue)/i
+          end
+          if t == false
+            return false if value == false or value =~ /^[f](alse)/i
+          end
           value = value.downcase if value.kind_of? String
           return true if (t == value)
         end
@@ -32,7 +38,7 @@ module Cfruby
       end
 
 			def Args.recurse name,value 
-        if test(value,['infinite','true'])
+        if test(value,['infinite',true])
 					return { :recursive => true }
 				elsif value.to_s =~ /\d+/
           # don't set :recursive in this case
@@ -53,7 +59,7 @@ module Cfruby
 			end
 
       def Args.rmdirs name,value
-        if value!=nil and value==true
+        if test(value,['infinite',true])
           return { :force => true }
         else
           return { :filesonly => true }
