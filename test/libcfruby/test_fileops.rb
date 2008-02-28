@@ -293,9 +293,10 @@ class TC_FileOperations < Test::Unit::TestCase
 		
 			Cfruby::FileOps.copy(@basefile.path, newfilepath, :user=>'lijygrdwa')
 			# OK, this is ugly! But we need to make sure the ownership was
-			# retained from the :user parameter (failing, as it is
-			# root at this point)
-			assert_equal(false,(`ls -l #{newfilepath}`=~/lijygrdwa/))
+			# retained from the :user parameter 
+      # print "ls -l  #{newfilepath}:"
+      # print `ls -l  #{newfilepath}`
+			assert_equal(13,(`ls -l #{newfilepath}`=~/lijygrdwa/))
 			assert_equal(true, test(?f, newfilepath), "Local copy failed")
 			manager.delete_user('lijygrdwa')
 		end
