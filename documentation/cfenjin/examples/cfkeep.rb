@@ -46,7 +46,7 @@ copy:
 
   debianlinux::
 
-    /etc/modprobe.d/blacklist dest=@hostspec+'modprobe_blacklist' o=@user m=600 backup=false
+    /etc/modprobe.d/blacklist dest=@hostspec+'modprobe_blacklist' o=@realuser m=600 backup=false
 
   linux.apple_computer::
 

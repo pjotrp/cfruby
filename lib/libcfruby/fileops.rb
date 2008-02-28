@@ -806,6 +806,8 @@ module Cfruby
 				Cfruby.controller.attempt("changing ownership of \"#{filename}\" to \"#{owner}:#{group}\"", 'destructive') {
 					currentuid = File.stat(filename).uid
 					currentgid = File.stat(filename).gid
+          owner = currentuid if !owner
+          group = currentgid if !group
 					filename.chown(owner, group)
 					if(currentuid == File.stat(filename).uid and currentgid == File.stat(filename).gid)
 						Cfruby.controller.attempt_abort("unchanged, already owned by \"#{owner}:#{group}\"")
