@@ -542,7 +542,8 @@ module Cfruby
 			if !@@backup
 				return
 			end
-			
+		  # @@@	
+      # print "Backup ",filename,"\n"
 			Cfruby.controller.attempt("backup #{filename}", 'destructive') {
 				if(!filename.respond_to?(:dirname))
 					filename = Pathname.new(filename.to_s())
@@ -554,10 +555,17 @@ module Cfruby
 					backupdir = filename.dirname()
 				end
 				
+        fn = backupdir.to_s+'/'+filename.basename().to_s
+        # p [options,backupdir.to_s,fn]
+        # print "ls #{fn}:\n"
+        # print `ls -lrt #{fn}*`
+        timedfn = fn+"_#{Time.now.strftime('%Y%m%d')}"
+        search = timedfn+"_*"
+        # print "Search ",search,"\n"
 				# find the latest backup file and test the current file against it
 				# if :onlyonchange is true
 				if(options[:onlyonchange])
-					backupfiles = Dir.glob("#{backupdir}/#{filename.basename()}_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9]*")
+					backupfiles = Dir.glob(search)
 					if(backupfiles.length > 0)
 						lastbackup = backupfiles.sort.reverse()[0]
 						currentchecksums = Cfruby::Checksum::Checksum.get_checksums(filename)
@@ -574,27 +582,33 @@ module Cfruby
 					nextnum = -1
 					
 					# loop through any existing backup files to get the next number
-					Dir.[]("#{backupdir}/#{filename.basename()}_#{Time.now.strftime('%Y%m%d')}_*") { |backupfile|
+					Dir.glob(search) { |backupfile|
+            # p ['found',backupfile]
 						match = numbermatch.match(backupfile)
 						if(match != nil)
-							if(match[1].to_i() > nextnum)
-								nextnum = match[1].to_i()
+              number = match[1].to_i
+              # p ['MATCH!',backupfile,number]
+							if(number > nextnum)
+								nextnum = number
 							end
 						end
 					}
 					nextnum = nextnum + 1
-					
+					bufn = timedfn+"_#{nextnum}"
+          # print "Backup to #{bufn}\n"
+					raise(Exception, "Unable to create backup copy of #{filename} - trying #{bufn}") if File.exist?(bufn)
+
 					# attempt to open it
 					success = false
 					begin
-						File.open("#{backupdir}/#{filename.basename()}_#{Time.now.strftime('%Y%m%d')}_#{nextnum}", File::RDONLY)
+						File.open(bufn, File::RDONLY)
 					rescue Exception
-						FileOps.copy(filename, "#{backupdir}/#{filename.basename()}_#{Time.now.strftime('%Y%m%d')}_#{nextnum}")
+						FileOps.copy(filename,bufn)
 						success = true
 					end
 					
 					if(false == success)
-						raise(Exception, "Unable to create backup copy of #{filename}")
+						raise(Exception, "Unable to create backup copy of #{filename} - tried #{bufn}")
 					end
 				rescue Exception
 					# we play this game three times just to try to handle possible race

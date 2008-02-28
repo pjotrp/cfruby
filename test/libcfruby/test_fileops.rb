@@ -39,7 +39,7 @@ class TC_FileOperations < Test::Unit::TestCase
 	
 	def teardown()
 		@deletefiles.each() { |filename|
-			FileUtils.rm(filename)
+			# FileUtils.rm(filename)
 		}
 		@basefile.close(true)
 	end
@@ -222,14 +222,19 @@ class TC_FileOperations < Test::Unit::TestCase
 	
 	
 	def test_backup()
-		Cfruby::FileOps.backup(@basefile.path)
-		assert_equal(true, test(?f, "#{@basefile.path}_#{Time.now.strftime('%Y%m%d')}_0"), "Simple backup failed")
-		Cfruby::FileOps.backup(@basefile.path)
-		assert_equal(true, test(?f, "#{@basefile.path}_#{Time.now.strftime('%Y%m%d')}_1"), "Second backup failed")
-		Cfruby::FileOps.backup(@basefile.path, :onlyonchange => true)
-		assert_equal(false, test(?f, "#{@basefile.path}_#{Time.now.strftime('%Y%m%d')}_2"), "Unnecessary backup created")
-		@deletefiles << "#{@basefile.path}_#{Time.now.strftime('%Y%m%d')}_0"
-		@deletefiles << "#{@basefile.path}_#{Time.now.strftime('%Y%m%d')}_1"
+    fn = @basefile.path
+    bufn = fn+'_'+Time.now.strftime('%Y%m%d')
+    bufn0 = bufn+'_0'
+    bufn1 = bufn+'_1'
+    bufn2 = bufn+'_2'
+		Cfruby::FileOps.backup(fn)
+		assert_equal(true, test(?f, bufn0), "Simple backup #{bufn0} failed")
+		Cfruby::FileOps.backup(fn)
+		assert_equal(true, test(?f, bufn1), "Simple backup #{bufn1} failed")
+		Cfruby::FileOps.backup(fn, :onlyonchange => true)
+		assert_equal(false, test(?f, bufn2), "Unnecessary backup created")
+		@deletefiles << bufn0
+		@deletefiles << bufn1
 	end
 	
 	
