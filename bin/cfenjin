@@ -4,7 +4,7 @@
 
 # require 'profile'
 
-CFRUBY_COPYRIGHT = "Copyright GPL (c) 2004-2007"
+CFRUBY_COPYRIGHT = "Copyright GPL (c) 2004-2008"
 
 usage = <<USAGE
 
