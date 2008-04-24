@@ -4,7 +4,7 @@ require 'rubygems'
 
 spec = Gem::Specification.new do |s|
 	s.name = 'cfruby'
-	s.version = "1.0"
+	s.version = "1.01"
 	s.platform = Gem::Platform::RUBY
 	s.summary = "A collection of modules, classes, and tools for system maintenance and configuration"
 	s.description = "Cfruby provides a large array of helpful modules, classes, and tools for simple, powerful, cross platform system maintenance"
@@ -35,7 +35,7 @@ spec = Gem::Specification.new do |s|
 	s.required_ruby_version = '>= 1.8.1'
 	s.autorequire = 'libcfruby/libcfruby'
 	s.author = "David Powers, Pjotr Prins, Kelley Reynolds, Kevin Way"
-	s.email = "david@grayskies.net"
+	s.email = "david@grayskies.net, pjotr.public01@thebird.nl"
 	s.rubyforge_project = "cfruby"
 	s.homepage = "http://cfruby.rubyforge.org"
 	s.has_rdoc = true
