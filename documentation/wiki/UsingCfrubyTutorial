@@ -1,0 +1,287 @@
+= Cfruby =
+
+Cfruby allows managed system administration using Ruby. It is both a library of Ruby functions for system administration and an Cfengine-like clone (in effect a domain specific language or DSL for system administration). Cfruby is current deployed on servers, clusters and workstations - Debian, Fedora, SuSE etc. in combination with XEN and, for example, [http://nixos.org/ Nix] - for deployment and package management. 
+
+The Cfruby project contains a useful language for system administration - but also can be used as a Ruby-callable library with many interesting coding examples for system administration. 
+
+Cfruby can be downloaded from http://rubyforge.org/projects/cfruby/ as a tar ball or gem. You can also access the SVN repository through the Rubyforge web interface.
+
+It is important to understand that Cfruby is really two in one:
+
+ 1. '''Cfrubylib''' is a pure Ruby library with classes and methods for system administation. This includes file copying, finding, checksumming, package management, user management etc. etc.
+
+ 2. '''Cfenjin''' is a simple scripting language, or domain specific language, for system administration - allowing for scripting of configuration tasks (without knowledge of Ruby). Naturally Cfenjin uses Cfrubylib itself.
+ 
+So, if you are looking for a Ruby API check out Cfrubylib. And if you are looking for a scripting language check out Cfenjin. All in one package.
+
+Finally you can use pure Ruby mixed with Cfenjin style scripting.
+
+PjotrPrins & David Powers.
+
+== Cfrubylib ==
+
+Cfrubylib is a Ruby library for system administration. It can do most of the common tasks like file tidying, editing etc. etc. Best to study the API and code in:
+
+http://cfruby.rubyforge.org/cfrubylib/
+
+and the source repository:
+
+http://rubyforge.org/viewvc/lib/libcfruby/?root=cfruby
+
+More written documentation can be found in the source repository:
+
+http://rubyforge.org/viewvc/documentation/libcfruby/?root=cfruby
+
+Why reinvent the wheel? And you'll find it gives a lot more power than most configuration tools. Cfrubylib includes cfyaml - a YAML configurator. And support for FreeBSD Portage, Linux Debian, Linux Gentoo and OS-X Fink packages. Adding support for your favourite package manager should be straightforward.
+
+== Cfenjin ==
+
+Cfenjin is a GNU Cfengine clone written in Ruby. It does not offer a full replacement for Cfengine (for one we don't have a client/server protocol, though cfrubylib has some support for that itself) - but it is Ruby and consists of few lines of code using Cfrubylib.
+
+Documentation has been written, bits and pieces, but for now it is probably the best idea to study the examples in:
+
+  ./documentation/cfenjin/examples/
+
+after reading the tutorial below.
+
+----
+
+== Introducing Cfruby, Cfyaml and libcfruby ==
+
+Powerful next generation tools for managing large scale heterogeneous computing environments
+
+
+=== 1.1    Overview ===
+
+The Cfruby project is an open source software initiative with the dual purpose of (1) providing a solid library for system administration and (2) tools for emulating and superseding the workings of GNU Cfengine.
+
+Large scale networked computing environments need appropriate tools for managing system and computational services. Cfruby is a tool-set that allows full automation, transactions, granular locking, versioned backups, extensive and configurable logging, a state machine with Cfengine style classes and scripting.
+
+The project has two types of users. The first type is the system administrator who wants to replace Cfengine with something more flexible and advanced. The second type is the Ruby developer, who wants to use powerful system administration features from his software.  Since both worlds are served it means a broader user base which adds to the robustness and reliability of the libraries.
+
+Here some concepts are introduced so you can get an appreciation for what can be done.  
+
+=== 1.2    Cfenjin, a scripting language and state engine ===
+
+Cfenjin is a parser and part of the Cfruby tool-set. It is made to look and behave like Cfengine, the GNU configuration engine, which was conceived in 1994 by Mark Burgess[1] and has a simple programming language that can be mastered by any qualified system administrator.
+
+Cfengine was superior to other tools available at the time because it allowed a level of automating system administration while pursuing:
+
+ * Readability
+ * Documentation
+ * Prevention of duplication
+ * Abstraction
+
+Cfenjin aims to be a better Cfengine. Like Cfengine it
+
+ * is a simple language
+ * has a class based decision structure, which documents policies
+ * allows automation and abstraction
+
+And in addition it
+
+ * allows embedded Ruby
+ * can be relatively easily extended
+ * has extensive and configurable logging support
+
+Instead of opting for the original Cfengine code base we decided to use the Ruby language as a natural parser.
+
+Ruby is a fully object oriented scripting language[2] with a rapidly growing support base.  Ruby lends itself very well to rapid programming and usually results in terse but readable code[3]. It's affiliation to Perl is close enough for most Perl programmers to quickly pick up Ruby. Furthermore Ruby is nowadays on most installed UNIX systems and runs on Microsoft Windows as well.
+
+By using Ruby as a base language we get a very powerful scripting language for free.  Besides being well tested, cross-platform and secure, it has a number of nice features out of the box (support for Perl-like regular expressions, arrays, hashes, a great syntax checker, libraries for XML parsing, FTP and LDAP support, YAML etc. thrown in) that have been listed on Cfengine's wish list for a long time.
+
+Meanwhile Cfenjin users do not need to learn Ruby as Cfenjin is a self-contained language implemented as a pre-parser (the output is pure Ruby code).
+
+
+=== Example 1: Classes & configuration ===
+
+Cfenjin has classes and logical execution.
+
+  {{{#!ruby
+  servers = ( screamer flightless )
+  sshd    = ( servers )
+
+sshd::
+
+  $sshd_groups = 'sshlogin'
+  }}}
+
+
+                                                                             
+Here we tell Cfenjin that the servers with names 'screamer' and 'flightless' are running sshd. If sshd is defined   sshd groups gets set.
+
+
+Next we can use logic like
+
+  {{{#!ruby
+package 'ssh','openssh'
+
+control:
+
+    if File.directory? '/etc/ssh'
+      @ssh_etc = '/etc/ssh'
+    else
+      @ssh_etc = '/etc'
+    end
+
+files:
+
+    @ssh_etc+'/ssh_config' o=root m=0644
+    @ssh_etc+'/sshd_config' o=root m=0600
+    @ssh_etc+'/ssh_host_dsa_key' o=root m=0400
+    @ssh_etc+'/ssh_host_rsa_key' o=root m=0400
+    if File.exist? @ssh_etc+'/ssh_host_key'
+      @ssh_etc+'/ssh_host_key' o=root m=0400
+    end
+
+editfiles:
+
+    EditFile.edit @ssh_etc+'/sshd_config' do | f |
+      f.ReplaceAllAppend "UsePrivilegeSeparation [Nn].*",
+                         "UsePrivilegeSeparation yes"
+      f.ReplaceAllAppend "PermitRootLogin\s+[yY].*",
+                         "PermitRootLogin no"
+      f.ReplaceAllAppend "PermitEmptyPasswords[[:space:]]+[yY].*",
+                         "PermitEmptyPasswords no"
+      f.ReplaceAllAppend "^AllowGroups[[:space:]]+.*",
+                         "AllowGroups #{$sshd_groups}" if $sshd_groups
+      f.ReplaceAllAppend "^AllowUsers[[:space:]]+.*",
+                         "AllowUsers #{$sshd_users}" if $sshd_users
+    end
+  }}}
+
+
+where we test where the configuration files are (note we are using some plain Ruby in the control block - this is optional, but a real distinction from GNU Cfengine). In the files block we check and set permissions and in the 'editfiles' block we edit the configuration file.
+
+Note that editfiles allows for GNU type regular expressions, as well as Ruby and Perl type. Also the 'editfiles' block allows for 'if' blocks and other Ruby language syntax.
+
+
+=== Example 2: Package ===
+
+Cfenjin understands the package system. By using the 'package' command in a script it will skip configuration of a non-installed package. E.g.
+
+  {{{#!ruby
+package 'sudo'
+
+# ... do 'sudo' stuff when package 'sudo' installed ...
+  }}}
+
+this is why in Example 1 we do not need to surround every statement with an 'sshd::' clause(!)
+
+=== Example 3: Tidy ===
+
+Cfenjin has powerful tidying. The pattern search allows for full regular expressions. For example, to tidy all files older than 30 days matching:
+
+{{{
+
+  tidy:
+
+     /var/log/ pattern='mail\.\d+\.gz' age=30
+}}}
+
+removes /var/log/mail.3.gz when older than 30 days.
+
+=== Example 4: Invoking Cfenjin ===
+
+Run Cfenjin from the command line using the script names as parameters, for example
+
+{{{
+#! /bin/bash
+
+scripts=./documentation/cfenjin/examples
+./bin/cfenjin $scripts/site.rb $scripts/cfssh.rb $scripts/cfresolv.rb [...]
+}}}
+
+Useful options/switches can be viewed with
+
+{{{
+./bin/cfenjin --help
+}}}
+
+=== 1.3    Cfyaml, another state engine ===
+
+If you want to use a code generator, or parse configuration files, a YAML format can be used instead (or you could implement an XML edition quite easily. For example the following may be a way of configuring your mailer installation:
+
+{{{
+
+- install: exim
+- filename: /usr/local/etc/exim
+  options:
+     recursive: true
+  user: mailnull
+  group: mail
+  mode: u=rwX,g=rX,o-rwx
+- filename: /etc/rc.conf
+  set:
+     - [sendmail_enable, '"NONE"']
+     - [exim_enable, '"YES"']
+     - [exim_flags, '"-bd -q5m"']
+}}}
+
+=== 1.4    libcfruby, the library ===
+
+By studying the rdoc generated help files you can get a taste for the number of classes and methods that are available to Ruby programmers.
+
+Some quick examples:
+
+  {{{#!ruby
+  # user and group management
+  os = Cfruby::OS::OSFactory.new().get_os()
+  @manager = os.get_user_manager()
+  grouplist = @manager.groups()
+  assert_equal(true, @manager.group?('bin'))
+  @manager.add_user("lijygrdwa")
+
+  # copying
+  Cfruby::FileOps.backup(@basefile.path)
+  Cfruby::FileOps.copy(copydirpath, newfilepath)
+
+  # tidying
+  Cfruby::FileOps.delete(@basedir, :glob => "^mail\.\d+\.log\.gz",
+     :recursive => true)
+  }}}
+
+
+
+and, unlike standard Ruby library calls you get full and configurable logging. An extensive version of the log can look like:
+
+
+{{{
+cfruby info [2] copy /mnt/flash/darcs/cf/cfwrk/masterfiles/Xresources to
+  /home/wrk/.Xresources - attempt
+cfruby info [3] copy /mnt/flash/darcs/cf/cfwrk/masterfiles/Xresources to
+  /home/wrk/.Xresources - aborted - files have the same sha1 hash
+cfruby info [2] changing permissions of "/home/wrk/.Xresources" to "400" - attempt
+cfruby info [1] changing permissions of "/home/wrk/.Xresources" to "400" - done
+cfruby info [1] Computer "palermo" belongs to classes "any, debianlinux,
+  laptop, linux, pacs, wrk"
+}}}
+
+
+
+And it is easy to tune it down to any level you want. For example you can choose to only log changes really made to the system. You can disable/enable parts of the logger and control where to send the output.
+
+
+=== 1.5     Where are we now? ===
+
+The documentation still has some holes, and needs further elaboration and work. Most of existing docs can be found in the source package in differing formats.
+
+Meanwhile Cfruby, for both the library and cfenjin, is rather complete, can be considered stable (has been for years), and is used in a growing number of production systems. Examples of Cfengine style scripts can be found in the ./documentation/cfenjin/examples directory. So if you are armed with the standard GNU Cfengine documentation and a Ruby manual you should be able to use Cfruby to your advantage.
+
+=== 1.6     Availability ===
+
+Cfruby is open source and licensed using the GPL. Sources and documentation can be obtained from
+
+  [http://rubyforge.org/projects/cfruby/ Cfruby]
+
+=== 1.7 Contributing ===
+
+We welcome patches for Cfruby. You can use the 'tracker' on the project page for that - or just send us an E-mail. If we think it good we will give you direct access to the source repository. 
+
+=== 2    References ===
+
+[1] Mark Burgess. Cfengine, a configuration engine. http://www.cfengine.org/.
+
+[2] Yukihiro Matsumoto. The Ruby language. http://www.ruby-lang.org/en/.
+
+[3] Pjotr Prins. Ruby: Productive programming language. http://www.linuxjournal.com/article.php?sid=5915.
