@@ -20,10 +20,10 @@ module Cfruby
 				elsif File.exist? '/etc/hostname'
 					@keys['hostname'] = `cat /etc/hostname`.strip
 				end
-				# ---- figure distribution
+				# ---- figure out the distribution
 				@keys['distribution'] = 'unknown'
 				version = `cat /proc/version`.strip
-				@keys['distribution'] = 'debianlinux' if version =~ /Debian/
+				@keys['distribution'] = 'debianlinux' if version =~ /Debian/ or File.exist? '/etc/debian_version'
 				@keys['distribution'] = 'rocklinux' if version =~ /[Rr]ock/
 				Cfruby.controller.inform('debug', "Distro #{self['distribution']}")
 			end
