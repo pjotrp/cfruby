@@ -11,7 +11,7 @@ package 'tcpd','tcp_wrappers'
 
 control:
 
-  raise 'Allow hosts for sshd not defined $sshd_hosts' if $sshd_hosts == nil or $sshd_hosts == ''
+  raise 'Allow hosts for sshd not defined sshd_hosts' if $sshd_hosts == nil or $sshd_hosts == ''
 
 editfiles:
 
