@@ -9,7 +9,9 @@
 
 package 'tcpd','tcp_wrappers'
 
-# exit_script if $sshd_hosts == nil
+control:
+
+  raise 'Allow hosts for sshd not defined $sshd_hosts' if $sshd_hosts == nil or $sshd_hosts == ''
 
 editfiles:
 
