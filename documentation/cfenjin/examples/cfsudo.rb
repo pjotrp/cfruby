@@ -23,7 +23,7 @@ editfiles:
   ef.AutoCreate
   ef.EmptyEntireFilePlease
   ef.Warning
-  ef.AppendIfNoSuchLine "Defaults timestamp_timeout="+@timeout if @timeout
+  ef.AppendIfNoSuchLine "Defaults timestamp_timeout="+@timeout.to_s if @timeout
   ef.AppendIfNoSuchLine "# User alias specification "
   ef.AppendIfNoSuchLine "User_Alias WHEEL="+@wheel if $admin_users
   ef.AppendIfNoSuchLine ""
