@@ -12,43 +12,43 @@ needpackage 'sudo'
 
 control:
 
-	@wheel = $admin_users.join(',')
+  @wheel = $admin_users.join(',')
   @timeout = $admin_sudo_timeout
 
 editfiles:
 
-	any::
+  any::
 
-	ef = EditFile.new '/etc/sudoers'
-	ef.AutoCreate
-	ef.EmptyEntireFilePlease
-	ef.Warning
-	ef.AppendIfNoSuchLine "Defaults timestamp_timeout="+@timeout if @timeout
-	ef.AppendIfNoSuchLine "# User alias specification "
-	ef.AppendIfNoSuchLine "User_Alias WHEEL="+@wheel if $admin_users
-	ef.AppendIfNoSuchLine ""
-	ef.AppendIfNoSuchLine "# Cmnd alias specification"
-	ef.AppendIfNoSuchLine "Cmnd_Alias BASH=/bin/bash"
-	ef.AppendIfNoSuchLine ""
-	ef.AppendIfNoSuchLine "# User privilege specification"
-	ef.AppendIfNoSuchLine "root    ALL=(ALL) ALL"
-	ef.AppendIfNoSuchLine "WHEEL   ALL=BASH"
+  ef = EditFile.new '/etc/sudoers'
+  ef.AutoCreate
+  ef.EmptyEntireFilePlease
+  ef.Warning
+  ef.AppendIfNoSuchLine "Defaults timestamp_timeout="+@timeout if @timeout
+  ef.AppendIfNoSuchLine "# User alias specification "
+  ef.AppendIfNoSuchLine "User_Alias WHEEL="+@wheel if $admin_users
+  ef.AppendIfNoSuchLine ""
+  ef.AppendIfNoSuchLine "# Cmnd alias specification"
+  ef.AppendIfNoSuchLine "Cmnd_Alias BASH=/bin/bash"
+  ef.AppendIfNoSuchLine ""
+  ef.AppendIfNoSuchLine "# User privilege specification"
+  ef.AppendIfNoSuchLine "root    ALL=(ALL) ALL"
+  ef.AppendIfNoSuchLine "WHEEL   ALL=BASH"
 
-	usermount::
+  usermount::
 
-		ef.AppendIfNoSuchLine "WHEEL   ALL= NOPASSWD: /bin/mount, /bin/umount"
+    ef.AppendIfNoSuchLine "WHEEL   ALL= NOPASSWD: /bin/mount, /bin/umount"
 
-	any::
+  any::
 
-		ef.write
+    ef.write
 
 files:
 
-	!debianlinux::
+  !debianlinux::
  
-		/etc/sudoers m=0640 o=root g=root
+    /etc/sudoers m=0640 o=root g=root
 
-	debianlinux::
-	
-		# ---- The Ruby way (native syntax)
-		files '/etc/sudoers',{ 'm'=>0440, 'o'=>'root', 'g'=>'root' }
+  debianlinux::
+  
+    # ---- The Ruby way (native syntax)
+    files '/etc/sudoers',{ 'm'=>0440, 'o'=>'root', 'g'=>'root' }
