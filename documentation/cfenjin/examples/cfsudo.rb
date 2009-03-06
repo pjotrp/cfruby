@@ -13,6 +13,7 @@ needpackage 'sudo'
 control:
 
 	@wheel = $admin_users.join(',')
+  @timeout = $admin_sudo_timeout
 
 editfiles:
 
@@ -22,6 +23,7 @@ editfiles:
 	ef.AutoCreate
 	ef.EmptyEntireFilePlease
 	ef.Warning
+	ef.AppendIfNoSuchLine "Defaults timestamp_timeout="+@timeout if @timeout
 	ef.AppendIfNoSuchLine "# User alias specification "
 	ef.AppendIfNoSuchLine "User_Alias WHEEL="+@wheel if $admin_users
 	ef.AppendIfNoSuchLine ""
