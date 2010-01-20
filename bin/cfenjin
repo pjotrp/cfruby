@@ -4,7 +4,7 @@
 
 # require 'profile'
 
-CFRUBY_COPYRIGHT = "Copyright GPL (c) 2004-2008"
+CFRUBY_COPYRIGHT = "Copyright (C) 2004-2010 Pjotr Prins <pjotr.prins@thebird.nl> and David Powers"
 
 usage = <<USAGE
 
