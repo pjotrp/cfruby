@@ -215,7 +215,8 @@ module Cfruby
             user = UserInfo.new()
             name,id = line.split
             user.username = name
-            users[user.name] = user
+            user.uid = id.to_i
+            users[name] = user
           end
         else
           # get the list of users using niutil
@@ -241,7 +242,6 @@ module Cfruby
             users[user.username] = user
           }
         end
-
 				return(users)
 			end
 
