@@ -69,6 +69,8 @@ module Cfruby
 		# Implementation of the UserManger for OS X
 		class OSXUserManager < UserManager
 
+      DSCLBIN = '/usr/bin/dscl'
+
 			# adds a user to the system.  If userinfo is a string then it will
 			# add the named user with an optional uid.  If userinfo is an actual
 			# UserInfo object then uid is ignored and everything possible will be
@@ -205,29 +207,40 @@ module Cfruby
 			def users()
 				users = UserList.new()
 
-				# get the list of users using niutil
-				textlist = `niutil -list . /users`
-				textlist.each() { |line|
-					line.strip!()
-					user = UserInfo.new()
-					user.username = line[/^[0-9]+\s+(\S+)$/, 1]
-					userlist = `niutil -read . /users/#{user.username}`
-					userlist.each() { |subline|
-						subline.strip!()
-						case(subline)
-							when(/^home:/)
-								user.homedir = subline[/:\s*(.*)$/, 1]
-							when(/^uid:/)
-								user.uid = subline[/:\s*(.*)$/, 1].to_i()
-							when(/^gid:/)
-								user.gid = subline[/:\s*(.*)$/, 1].to_i()
-							when(/^realname:/)
-								user.fullname = subline[/:\s*(.*)$/, 1]
-						end
-					}
-
-					users[user.username] = user
-				}
+        if dscl?
+          # The dscl version is still limited
+          idlist = `#{DSCLBIN} . -list /Users UniqueID`
+          grouplist = `#{DSCLBIN} . -list /Users PrimaryGroupID`
+          idlist.each do | line |
+            user = UserInfo.new()
+            name,id = line.split
+            user.username = name
+            users[user.name] = user
+          end
+        else
+          # get the list of users using niutil
+          textlist = `niutil -list . /users`
+          textlist.each() { |line|
+            line.strip!()
+            user = UserInfo.new()
+            user.username = line[/^[0-9]+\s+(\S+)$/, 1]
+            userlist = `niutil -read . /users/#{user.username}`
+            userlist.each() { |subline|
+              subline.strip!()
+              case(subline)
+                when(/^home:/)
+                  user.homedir = subline[/:\s*(.*)$/, 1]
+                when(/^uid:/)
+                  user.uid = subline[/:\s*(.*)$/, 1].to_i()
+                when(/^gid:/)
+                  user.gid = subline[/:\s*(.*)$/, 1].to_i()
+                when(/^realname:/)
+                  user.fullname = subline[/:\s*(.*)$/, 1]
+              end
+            }
+            users[user.username] = user
+          }
+        end
 
 				return(users)
 			end
@@ -257,6 +270,10 @@ module Cfruby
 
 				return(groups)
 			end
+
+      def dscl?
+        File.exist?(DSCLBIN)
+      end
 		end
 
 	end
