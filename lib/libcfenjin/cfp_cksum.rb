@@ -6,7 +6,7 @@
 # Copyright:: July 2007
 # License:: Ruby License
 
-require 'md5' if /^1\.8/ === RUBY_VERSION
+require 'md5' if RUBY_VERSION =~ /^1\.8/
 
 module Cfp_Cksum
 

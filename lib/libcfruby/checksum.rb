@@ -9,9 +9,7 @@ require 'libcfruby/cfruby'
 require 'libcfruby/fileops'
 require 'libcfruby/filefind'
 require 'digest/md5'
-if /^1\.8/ === RUBY_VERSION then
-  require 'md5'
-end
+require 'md5' if /^1\.8/ === RUBY_VERSION 
 require 'digest/sha1'
 require 'ostruct'
 require 'yaml'
