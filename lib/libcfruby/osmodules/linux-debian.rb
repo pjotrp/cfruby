@@ -42,7 +42,7 @@ module Cfruby
 
 				list = `#{@dpkgbin} -l`
 				regex = /^ii\s+(\S+)\s+(\S+)/
-				list.each { | s |
+				list.each_line { | s |
 					match = regex.match(s)
 					if(match != nil)
 						packages[match[1]]= PackageInfo.new()

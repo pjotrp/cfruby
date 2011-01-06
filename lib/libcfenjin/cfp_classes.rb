@@ -157,7 +157,7 @@ module Cfruby
 
 		# Add an attribute - allows adding strings and arrays
 		def add name
-			if name.class == 'String'
+			if name.kind_of? String
 				push name
 			else
 				name.each do | n |
