@@ -7,7 +7,7 @@
 # Copyright:: July 2007
 # License:: Ruby License
 
-package 'tcpd','tcp_wrappers'
+package 'tcpd' # ,'tcp_wrappers'
 
 control:
 
@@ -26,5 +26,6 @@ editfiles:
 		f.AutoCreate
 		f.EmptyEntireFilePlease
 		f.Warning
+		f.AppendIfNoSuchLine "ssh: localhost"
 		f.AppendIfNoSuchLine "sshd: #{$sshd_hosts}" if $sshd_hosts != nil
 	end
